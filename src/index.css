@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global assignment: body = Figtree, headings = Roboto */
+@layer base {
+  html { @apply font-sans; } /* body/normal text = Figtree stack */
+  :where(h1,h2,h3,h4,h5,h6) {
+    font-family: theme('fontFamily.heading'); /* headings = Roboto stack */
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Utility for non-h tags needing heading font */
+@layer utilities {
+  .font-heading { font-family: theme('fontFamily.heading'); }
+}
+/* src/index.css ke end me add karo */
+.font-heading { font-family: var(--font-heading); letter-spacing: -0.01em; }
+

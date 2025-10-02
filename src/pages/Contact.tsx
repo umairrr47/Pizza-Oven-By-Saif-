@@ -203,7 +203,7 @@ const Contact: React.FC = () => {
               className="grid grid-cols-1 gap-4"
             >
               <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                href={`https://wa.me/${+919899593526}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-green-500 py-4 font-medium text-white shadow transition hover:bg-green-600"

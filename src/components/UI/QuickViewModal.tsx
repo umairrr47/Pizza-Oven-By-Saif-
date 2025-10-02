@@ -173,7 +173,7 @@ const QuickViewModal: React.FC<Props> = ({ product, isOpen, onClose }) => {
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <a
-                href="https://wa.me/918880889216"
+                href="https://wa.me/919899593526"
                 target="_blank"
                 className="inline-flex items-center justify-center rounded-lg bg-amber-600 px-4 py-2.5 text-white hover:bg-amber-700"
               >

@@ -1,3 +1,6 @@
+import Bimg1 from "../assets/bimg1.png"
+import Bimg2 from "../assets/bimg2.png"
+import Bimg3 from "../assets/bimg3.png"
 export interface BlogPost {
   id: number;
   title: string;
@@ -19,7 +22,7 @@ export const blogPosts: BlogPost[] = [
     slug: "authentic-neapolitan-pizza-techniques",
     excerpt: "Discover the secrets behind perfect Neapolitan pizza and how modern wood-fired ovens preserve traditional Italian cooking methods.",
     content: "Authentic Neapolitan pizza represents centuries of Italian culinary tradition...",
-    image: "https://images.pexels.com/photos/4198017/pexels-photo-4198017.jpeg?auto=compress&cs=tinysrgb&w=800",
+    image: Bimg1,
     author: "Chef Marco Italiano",
     publishedDate: "2024-03-15",
     category: "Cooking Tips",
@@ -32,7 +35,7 @@ export const blogPosts: BlogPost[] = [
     slug: "wood-fired-vs-gas-ovens-guide",
     excerpt: "Compare the benefits, costs, and operational differences between wood-fired and gas pizza ovens for commercial use.",
     content: "Choosing the right oven type is crucial for your restaurant's success...",
-    image: "https://images.pexels.com/photos/5175654/pexels-photo-5175654.jpeg?auto=compress&cs=tinysrgb&w=800",
+    image: Bimg2,
     author: "Restaurant Consultant Team",
     publishedDate: "2024-03-10",
     category: "Business Guide",
@@ -45,7 +48,7 @@ export const blogPosts: BlogPost[] = [
     slug: "pizza-oven-maintenance-tips",
     excerpt: "Learn how to properly maintain your pizza oven to ensure optimal performance and extend its lifespan for years to come.",
     content: "Proper maintenance is key to getting the most out of your pizza oven investment...",
-    image: "https://images.pexels.com/photos/4087367/pexels-photo-4087367.jpeg?auto=compress&cs=tinysrgb&w=800",
+    image: Bimg3,
     author: "Technical Support Team",
     publishedDate: "2024-03-05",
     category: "Maintenance",

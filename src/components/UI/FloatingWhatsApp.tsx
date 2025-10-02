@@ -24,7 +24,7 @@ const FloatingWhatsApp: React.FC = () => {
 
   const handleWhatsAppClick = () => {
     const message = encodeURIComponent("Hi! I'm interested in your premium pizza ovens. Could you please provide more information?");
-    const whatsappUrl = `https://wa.me/919876543210?text=${message}`;
+    const whatsappUrl = `https://wa.me/919899593526?text=${message}`;
     window.open(whatsappUrl, '_blank');
     setShowTooltip(false);
   };

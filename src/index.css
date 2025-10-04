@@ -18,3 +18,20 @@
 /* src/index.css ke end me add karo */
 .font-heading { font-family: var(--font-heading); letter-spacing: -0.01em; }
 
+html, body {
+  overflow-x: hidden;   /* legacy browsers ke liye safety */
+}
+
+#root, main {
+  overflow-x: clip;     /* modern, more precise */
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+img, video {
+  max-width: 100%;
+  height: auto;
+}
+

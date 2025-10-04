@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Header from "./Header";
+import Header from "../Layout/Header";
 import { useLocation } from "react-router-dom";
 
 interface LayoutProps {
@@ -16,15 +16,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const headerHeight = isScrolled ? 100 : 110; // Header height for non-Hero pages
-
-  // Check if current page is Home
   const isHome = location.pathname === "/";
 
   return (
     <>
       <Header />
-      <div style={{ paddingTop: isHome ? 0 : `${headerHeight}px` }}>
+      {/* ✅ Global horizontal clip to kill right gutter */}
+      <div className={`${isHome ? "" : "pt-16 sm:pt-20"} overflow-x-clip`}>
         {children}
       </div>
     </>

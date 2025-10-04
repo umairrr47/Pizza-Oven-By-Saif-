@@ -40,7 +40,6 @@ const QuickViewModal: React.FC<Props> = ({ product, isOpen, onClose }) => {
   }, [isOpen, images.length, onClose]);
 
   if (!isOpen || !product) return null;
-  const rating = Math.round(product.rating || 0);
 
   const panel = (
     <AnimatePresence>
@@ -51,7 +50,7 @@ const QuickViewModal: React.FC<Props> = ({ product, isOpen, onClose }) => {
         onClick={onClose}
       />
 
-      {/* Centering layer: NO translate hacks, pure grid center */}
+      {/* Centering layer */}
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         className="fixed inset-0 z-[1001] grid place-items-center p-3 sm:p-5"
@@ -147,7 +146,11 @@ const QuickViewModal: React.FC<Props> = ({ product, isOpen, onClose }) => {
             <div className="mt-3 flex items-center gap-2">
               <div className="inline-flex items-center gap-1">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={14} className={i < Math.round(product.rating || 0) ? "text-amber-400 fill-amber-400" : "text-neutral-300"} />
+                  <Star
+                    key={i}
+                    size={14}
+                    className={i < Math.round(product.rating || 0) ? "text-amber-400 fill-amber-400" : "text-neutral-300"}
+                  />
                 ))}
               </div>
               {product.reviewsCount ? <span className="text-xs text-neutral-500">({product.reviewsCount})</span> : null}
@@ -171,7 +174,8 @@ const QuickViewModal: React.FC<Props> = ({ product, isOpen, onClose }) => {
 
             <p className="mt-4 text-sm text-neutral-600 leading-relaxed">{product.description}</p>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
+            {/* ✅ Buttons: mobile pe stack, sm+ pe 2-cols */}
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <a
                 href="https://wa.me/919899593526"
                 target="_blank"

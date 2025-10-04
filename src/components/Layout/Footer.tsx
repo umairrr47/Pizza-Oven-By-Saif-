@@ -42,9 +42,9 @@ const Footer: React.FC = () => {
   ];
 
   return (
-    <footer className="relative bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white">
-      {/* Glow effect */}
-      <div className="absolute -top-40 left-1/2 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-[#d43804]/20 blur-3xl" />
+   <footer className="relative bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white overflow-x-clip">
+  {/* Glow effect */}
+  <div className="absolute -top-40 left-1/2 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-[#d43804]/20 blur-3xl" />
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-12 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">

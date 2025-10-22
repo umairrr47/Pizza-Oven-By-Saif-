@@ -1,131 +1,190 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
 import Logo from "../../assets/Logo.png";
 
 const Header: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => setIsMenuOpen(false), [location]);
+  // close drawer on route change & lock body scroll
+  useEffect(() => setOpen(false), [location]);
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
 
-  const navItems = [
-    { name: "Home", path: "/" },
-    { name: "Products", path: "/products" },
-    { name: "Recent Work", path: "/recent-work" },
-    { name: "Blog", path: "/blog" },
-    // { name: "Testimonials", path: "/testimonials" },
-    { name: "Contact", path: "/contact" },
+  const leftMenu = [
+    { name: "Who We Are", path: "/about-us" },
+    { name: "Contact Us", path: "/contact" },
+    { name: "Blogs", path: "/blog" },
   ];
+  const rightMenu = [
+    { name: "Commercial Oven", path: "/commercial-oven" },
+    { name: "Portable Oven", path: "/portable-oven" },
+    { name: "Residential Oven", path: "/residential-oven" },
+  ];
+  const isActive = (p: string) => location.pathname === p;
 
-  const isActive = (path: string) => location.pathname === path;
-
-  // Helper function for header style
-  const getHeaderStyle = () => {
-    const isHome = location.pathname === "/";
-    const bgColor = !isHome || isScrolled ? "rgba(0,0,0,0.85)" : "rgba(0,0,0,0)";
-    const blur = !isHome || isScrolled ? "blur(12px)" : "blur(0px)";
-    const boxShadow =
-      !isHome || isScrolled ? "0 4px 20px rgba(0,0,0,0.25)" : "0 0 0 rgba(0,0,0,0)";
-    const height = !isHome || isScrolled ? "60px" : "70px"; // slim on scroll
-
-    return { backgroundColor: bgColor, backdropFilter: blur, boxShadow, height };
+  // Premium glass header animation
+  const headerAnim = {
+    background:
+      scrolled
+        ? "linear-gradient(180deg, rgba(10,10,10,.85), rgba(10,10,10,.75))"
+        : "linear-gradient(180deg, rgba(10,10,10,.35), rgba(10,10,10,0))",
+    backdropFilter: scrolled ? "blur(10px)" : "blur(6px)",
+    height: scrolled ? "66px" : "82px",
+    boxShadow: scrolled ? "0 8px 28px rgba(0,0,0,.35)" : "0 2px 10px rgba(0,0,0,.15)",
   };
+
+  // Fluid sizes so it still looks big at 75% zoom
+  const itemBase =
+    "relative font-semibold tracking-wide transition-colors";
+  const itemSize = "text-[clamp(13px,1.08vw,16px)]"; // <= key: fluid desktop text
+  const itemSpace = "space-x-[clamp(14px,1.8vw,36px)]";
+  const activeClass = "text-white";
+  const idleClass = "text-white/80 hover:text-white";
 
   return (
     <motion.header
       initial={false}
-      animate={getHeaderStyle()}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed top-0 left-0 w-full z-50"
+      animate={headerAnim}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className="fixed inset-x-0 top-0 z-50 text-white"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-full py-0">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 h-full">
-            <img
-              src={Logo}
-              alt="Premium Ovens Logo"
-              className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto object-contain transition-transform duration-300 hover:scale-105"
-            />
-          </Link>
+      <div className="max-w-[1200px] xl:max-w-[1320px] 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-full">
+        <div className="h-full flex items-center justify-between">
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center space-x-8 h-full">
-            {navItems.map((item) => (
+          {/* LEFT (desktop) */}
+          <nav className={`hidden lg:flex items-center ${itemSpace}`}>
+            {leftMenu.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
-                className={`relative py-1 px-2 text-sm font-medium transition-colors duration-200 ${
-                  isActive(item.path)
-                    ? "text-[#d43804]"
-                    : "text-gray-200 hover:text-[#d43804]"
-                }`}
+                className={`${itemBase} ${itemSize} ${isActive(item.path) ? activeClass : idleClass}`}
               >
                 {item.name}
               </Link>
             ))}
           </nav>
 
-          {/* CTA */}
-          <div className="hidden lg:block">
-            <Link
-              to="/contact"
-              className="bg-[#d43804] text-white px-5 py-2.5 rounded-xl shadow-md hover:bg-[#b13003] transition-all duration-300 font-medium hover:shadow-lg hover:scale-105"
-            >
-              Get Quote
-            </Link>
-          </div>
+          {/* CENTER logo (fluid height so it doesn’t look tiny at 75%) */}
+          <Link to="/" className="flex-shrink-0">
+            <img
+              src={Logo}
+              alt="Logo"
+              className="w-auto object-contain transition-transform duration-300 hover:scale-[1.04]
+                         h-[clamp(40px,4.4vw,58px)]"
+            />
+          </Link>
 
-          {/* Mobile Menu Button */}
+          {/* RIGHT (desktop) + email icon (no box) */}
+          <nav className={`hidden lg:flex items-center ${itemSpace}`}>
+            {rightMenu.map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`${itemBase} ${itemSize} ${isActive(item.path) ? activeClass : idleClass}`}
+              >
+                {item.name}
+              </Link>
+            ))}
+
+            {/* Email icon – box removed */}
+            <a
+              href="mailto:info@yourbrand.com"
+              aria-label="Email"
+              className="p-2 opacity-85 hover:opacity-100 transition-opacity"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="clamp(18px,1.4vw,22px)"
+                height="clamp(18px,1.4vw,22px)"
+                className="stroke-white fill-none drop-shadow-[0_0_6px_rgba(255,255,255,.25)]"
+              >
+                <rect x="3" y="6" width="18" height="12" rx="2" strokeWidth="1.6" />
+                <path d="M3 7l9 6 9-6" strokeWidth="1.6" />
+              </svg>
+            </a>
+          </nav>
+
+          {/* MOBILE: hamburger */}
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden p-2 text-white z-50"
+            onClick={() => setOpen(true)}
+            aria-label="Open menu"
+            className="lg:hidden w-10 h-10 grid place-items-center"
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <span className="relative block w-6">
+              <span className="absolute inset-x-0 -top-2 h-[2px] bg-white"></span>
+              <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] bg-white"></span>
+              <span className="absolute inset-x-0 -bottom-2 h-[2px] bg-white"></span>
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* MOBILE DRAWER (slides from right) */}
       <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-black/95 backdrop-blur-lg border-t border-gray-800"
+        {open && (
+          <motion.aside
+            key="drawer"
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ duration: 0.28, ease: "easeInOut" }}
+            className="fixed top-0 right-0 h-screen w-[86%] xs:w-[78%] sm:w-[60%]
+                       bg-[#0b0b0b]/95 backdrop-blur-xl text-white z-[60] shadow-2xl"
           >
-            <div className="px-4 py-4 space-y-3">
-              {navItems.map((item) => (
+            {/* close (top-right) */}
+            <div className="flex items-center justify-end px-5 pt-5">
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Close menu"
+                className="w-9 h-9 grid place-items-center"
+              >
+                <svg viewBox="0 0 24 24" width="22" height="22" className="stroke-white fill-none">
+                  <path d="M6 6l12 12M18 6L6 18" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            {/* links with separators */}
+            <nav className="px-5 pt-2">
+              {[...leftMenu, ...rightMenu].map((item, idx) => (
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`block py-2 px-3 rounded-lg transition-colors duration-200 ${
-                    isActive(item.path)
-                      ? "bg-[#d43804] text-white"
-                      : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                  }`}
+                  onClick={() => setOpen(false)}
+                  className="block py-3 text-[clamp(14px,3.6vw,18px)] font-semibold text-white/90 hover:text-white"
                 >
                   {item.name}
+                  <div className={`mt-3 h-px bg-white/15 ${idx === leftMenu.length + rightMenu.length - 1 ? "hidden" : ""}`} />
                 </Link>
               ))}
-              <Link
-                to="/contact"
-                className="block bg-[#d43804] text-white px-3 py-2 rounded-lg hover:bg-[#b13003] transition-colors duration-200 font-medium text-center"
-              >
-                Get Quote
-              </Link>
-            </div>
-          </motion.div>
+            </nav>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* OVERLAY (dim background) */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            key="overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.6 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 bg-black z-50 lg:hidden"
+          />
         )}
       </AnimatePresence>
     </motion.header>

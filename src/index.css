@@ -1,3 +1,4 @@
+/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,9 +16,11 @@
 @layer utilities {
   .font-heading { font-family: theme('fontFamily.heading'); }
 }
-/* src/index.css ke end me add karo */
+
+/* (Duplicate utility kept for projects that rely on this variable) */
 .font-heading { font-family: var(--font-heading); letter-spacing: -0.01em; }
 
+/* Prevent horizontal scroll gutters */
 html, body {
   overflow-x: hidden;   /* legacy browsers ke liye safety */
 }
@@ -35,3 +38,9 @@ img, video {
   height: auto;
 }
 
+/* --- IMPORTANT: Lenis ke saath CSS smooth-scroll conflict na ho --- */
+/* Agar kahin aur (3rd-party CSS/component) scroll-behavior: smooth set hai,
+   to is override se wo neutralize ho jayega. */
+html {
+  scroll-behavior: auto !important;
+}

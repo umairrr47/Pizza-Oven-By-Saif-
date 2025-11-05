@@ -3,24 +3,51 @@ import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Award, Users, Clock, CheckCircle } from "lucide-react";
-
 import { products, Product } from "../data/products";
-import ProductCard from "../components/UI/ProductCard";
 import QuickViewModal from "../components/UI/QuickViewModal";
-
-// Light sections can stay direct imports
-import About from "./About";
+import OvensShowcase,{ OvenItem } from "./OvensShowcase";
+import ProjectsInIndia from "./ProjectsInIndia";
+import Founder from "./Founder"
+import Installation from "./Installation";
+import RevolvingOven from "./RevolvingOven";
+import BrandCarousal from "./BrandCarousel";
+import Oven1 from "../assets/residential.png";
+import Oven2 from "../assets/portable.png";
+import Oven3 from "../assets/commercial.png";
+import Saif from "../assets/Saifbg.png"
+const ovens: OvenItem[] = [
+  {
+    image: Oven3,  // Swapped from Oven1 to Oven3 for Commercial
+    title: "Commercial Oven",
+    indexLabel: "01",
+    blurb: "Built for high-volume service with consistent heat and durable construction.",
+  },
+  {
+    image:  Oven2,  // Remains the same
+    title: "Portable Oven",
+    indexLabel: "02",
+    blurb: "Crafted to be sturdy and lightweight, ideal for events.",
+  },
+  {
+    image: Oven1,  // Swapped from Oven3 to Oven1 for Residential
+    title: "Residential Oven",
+    indexLabel: "03",
+    blurb: "Compact footprint with authentic stone-baked performance for home kitchens and patios.",
+  },
+];
 
 // Heavy sections (lazy to avoid crash if any child throws)
 const Hero = lazy(() => import("./Hero"));
-const BrandCarousel = lazy(() => import("./BrandCarousel"));
+// const BrandCarousel = lazy(() => import("./BrandCarousel"));
 const HeroVideoGSAP = lazy(() => import("./HeroVideoGSAP"));
-const OurClients = lazy(() => import("./OurClients"));
 const Testimonials = lazy(() => import("../pages/Testimonials"));
 
 import Fimg1 from "../assets/Fimg1.png";
 import Fimg2 from "../assets/Fimg2.png";
 import Fimg3 from "../assets/Fimg3.png";
+import EnquiryFormSection from "./EnquiryFormSection";
+
+
 
 /* ----------------------- CountUp (safe, tiny, no GSAP) ----------------------- */
 const useCountUpOnView = (
@@ -39,7 +66,7 @@ const useCountUpOnView = (
 
     const format = (v: number) => `${Math.floor(v)}${suffix}`;
     const prefersReduced =
-      typeof window !== "undefined" &&
+      typeof window !== "" &&
       window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -100,22 +127,22 @@ const StatCard: React.FC<{
 };
 
 const Home: React.FC = () => {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleQuickView = (product: Product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  };
+  // const handleQuickView = (product: Product) => {
+  //   setSelectedProduct(product);
+  //   setIsModalOpen(true);
+  // };
 
-  const featuredProducts = Array.isArray(products) ? products.slice(0, 3) : [];
+  // const featuredProducts = Array.isArray(products) ? products.slice(0, 3) : [];
 
-  const stats = [
-    { Icon: Award, number: 500, suffix: "+", label: "Ovens Installed" },
-    { Icon: Users, number: 300, suffix: "+", label: "Happy Clients" },
-    { Icon: Clock, number: 8, suffix: "+", label: "Years Experience" },
-    { Icon: CheckCircle, number: 99, suffix: "%", label: "Satisfaction Rate" },
-  ];
+  // const stats = [
+  //   { Icon: Award, number: 500, suffix: "+", label: "Ovens Installed" },
+  //   { Icon: Users, number: 300, suffix: "+", label: "Happy Clients" },
+  //   { Icon: Clock, number: 8, suffix: "+", label: "Years Experience" },
+  //   { Icon: CheckCircle, number: 99, suffix: "%", label: "Satisfaction Rate" },
+  // ];
 
   const features = [
     {
@@ -146,15 +173,47 @@ const Home: React.FC = () => {
       </Suspense>
 
       <Suspense fallback={null}>
-        <BrandCarousel />
+        <BrandCarousal />
       </Suspense>
 
       <Suspense fallback={null}>
         <HeroVideoGSAP />
       </Suspense>
 
+      <section className="flow-root py-0 my-0">
+      <OvensShowcase
+        headline="Ovens range to choose from"
+        subcopy="At The Pizza Ovens, we specialize in crafting high-performance ovens engineered for excellence - delivering authentic Neapolitan pizzas in just 60–120 seconds. Our extensive range of models is designed to meet diverse needs, offering various capacities, outputs, and features to suit both home chefs and professional kitchens alike."
+        items={ovens}
+        autoPlayMs={6000}
+      />
+      </section>
+
+      <section className="flow-root py-0 my-0">
+  <Suspense fallback={null}>
+    <Founder founderImg={Saif} />
+  </Suspense>
+</section>
+
+      <Suspense fallback={null}>
+        <Installation />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <ProjectsInIndia />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <RevolvingOven />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <EnquiryFormSection />
+      </Suspense>
+
+
       {/* Tagline */}
-      <section className="py-16 bg-gray-50">
+      {/* <section className="py-16 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -176,12 +235,12 @@ const Home: React.FC = () => {
             for chefs, loved by foodies.
           </motion.p>
         </div>
-      </section>
+      </section> */}
 
       {/* About */}
-      <About />
+      {/* <About /> */}
 
-      {/* Stats */}
+      {/* Stats
       <section className="py-14 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <motion.div
@@ -202,10 +261,10 @@ const Home: React.FC = () => {
             ))}
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
       {/* Featured Products */}
-      <section className="py-20 bg-gray-50">
+      {/* <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -247,10 +306,10 @@ const Home: React.FC = () => {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Features */}
-      <section className="relative py-24 bg-gradient-to-b from-neutral-50 via-white to-neutral-50">
+      {/* <section className="relative py-24 bg-gradient-to-b from-neutral-50 via-white to-neutral-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -297,19 +356,19 @@ const Home: React.FC = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Clients & Testimonials (lazy) */}
-      <Suspense fallback={null}>
+      {/* <Suspense fallback={null}>
         <OurClients />
-      </Suspense>
+      </Suspense> */}
 
-      <Suspense fallback={null}>
+      {/* <Suspense fallback={null}>
         <Testimonials />
-      </Suspense>
+      </Suspense> */}
 
       {/* CTA */}
-      <section className="py-20 bg-[#d43804]">
+      {/* <section className="py-20 bg-[#d43804]">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -340,14 +399,14 @@ const Home: React.FC = () => {
             </div>
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
       {/* Quick View */}
-      <QuickViewModal
+      {/* <QuickViewModal
         product={selectedProduct}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-      />
+      /> */}
     </div>
   );
 };

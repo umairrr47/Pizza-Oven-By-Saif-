@@ -19,7 +19,7 @@ const HeroPage: React.FC = () => {
   return (
     <section
       id="hero"
-      className="relative h-screen w-full text-white flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen w-full text-white flex items-center justify-center overflow-hidden"
       style={{ backgroundImage: `url(${BG})`, backgroundSize: "cover", backgroundPosition: "center" }}
     >
       {/* contrast overlay */}

@@ -59,7 +59,7 @@ const Header: React.FC = () => {
       transition={{ duration: 0.25, ease: "easeInOut" }}
       className="fixed inset-x-0 top-0 z-50 text-white"
     >
-      <div className="max-w-[1200px] xl:max-w-[1320px] 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-full">
+      <div className="w-full px-4 sm:px-6 lg:px-8 h-full">
         <div className="h-full flex items-center justify-between">
 
           {/* LEFT (desktop) */}

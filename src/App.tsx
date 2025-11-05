@@ -16,10 +16,13 @@ import RecentWork from "./pages/RecentWork";
 import Blog from "./pages/Blog";
 import Testimonials from "./pages/Testimonials";
 import Contact from "./pages/Contact";
-
+import SmoothScrollProvider from "./lib/SmoothScrollProvider";
+import SmokeOverlay from "./components/Layout/SmokeOverlay";
 const App: React.FC = () => {
   return (
     <Router>
+       <SmokeOverlay />
+      <SmoothScrollProvider />
       <ScrollToTop />
       <div className="min-h-screen bg-white">
         <Header />
@@ -39,6 +42,7 @@ const App: React.FC = () => {
         <Footer />
         <FloatingWhatsApp />
       </div>
+      <SmoothScrollProvider />
     </Router>
   );
 };

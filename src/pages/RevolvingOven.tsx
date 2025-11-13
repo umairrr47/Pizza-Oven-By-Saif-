@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Video from "../assets/video.mp4";
 import Poster from "../assets/bg.png";
 
-const RevolvingOvenHero: React.FC = () => {
+const RevolvingOven: React.FC = () => {
   const [play, setPlay] = useState(false);
 
   return (
@@ -12,7 +12,7 @@ const RevolvingOvenHero: React.FC = () => {
         <div className="grid grid-cols-12 gap-6 lg:gap-8 w-full">
           
           {/* Heading */}
-          <h1 className="col-span-12 lg:col-span-7 text-2xl sm:text-3xl lg:text-4xl xl:text-5xl leading-[1.15] font-normal tracking-tight text-white/95">
+          <h1 className="col-span-12 lg:col-span-7 text-2xl sm:text-3xl lg:text-4xl xl:text-5xl text-[clamp(30px,3.2vw,56px)] leading-[1.08] font-light tracking-[-0.005em] text-gray-100">
             Saif introduced revolving
             <br className="hidden sm:block" />
             wood and gas fired ovens in
@@ -21,13 +21,13 @@ const RevolvingOvenHero: React.FC = () => {
           </h1>
 
           {/* Description */}
-          <p className="col-span-12 lg:col-span-5 text-base sm:text-lg leading-relaxed text-gray-300/90 font-light">
+          <p className="col-span-12 lg:col-span-5 text-[16px] md:text-[18px] text-[#e9e6e6] leading-[1.7] tracking-[0.02em]">
             Experience the unmatched performance and ease of use of Saif&apos;s revolving oven, an engineering marvel that boosts productivity while enabling pizza makers to consistently deliver high-quality results.
           </p>
 
-          {/* Video Section */}
+          {/* Video Section - made wider to match parent max width */}
           <div className="col-span-12 mt-6 lg:mt-8">
-            <div className="relative mx-auto w-full max-w-6xl rounded-xl overflow-hidden bg-neutral-900/50 ring-1 ring-white/5 shadow-xl backdrop-blur-sm">
+            <div className="relative w-full max-w-[1400px] rounded-xl overflow-hidden bg-neutral-900/50 ring-1 ring-white/5 shadow-xl backdrop-blur-sm">
               <div className="w-full aspect-[16/9] relative">
                 {!play ? (
                   <button
@@ -36,7 +36,7 @@ const RevolvingOvenHero: React.FC = () => {
                     onClick={() => setPlay(true)}
                     className="group relative flex h-full w-full items-center justify-center transition-all duration-300 hover:scale-[1.01]"
                   >
-                    {/* ✅ Correct Poster */}
+                    {/* Poster */}
                     <img
                       src={Poster}
                       alt="Revolving oven demo poster"
@@ -86,4 +86,4 @@ const RevolvingOvenHero: React.FC = () => {
   );
 };
 
-export default RevolvingOvenHero;
+export default RevolvingOven;

@@ -1,31 +1,28 @@
+// src/App.tsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Header from "./components/Layout/Header";
+import Layout from "./components/Layout/Layout";
 import Footer from "./components/Layout/Footer";
 import FloatingWhatsApp from "./components/UI/FloatingWhatsApp";
 import ScrollToTop from "./components/Layout/ScrollToTop";
-import Layout from "./components/Layout/Layout";
 
 import Home from "./pages/Home";
 import Products from "./pages/Products";
-// If your file is named ProductsDetails.tsx, either rename the file to ProductDetails.tsx
-// or change the import below to match the actual filename.
 import ProductDetails from "./pages/ProductsDetails";
 import RecentWork from "./pages/RecentWork";
 import Blog from "./pages/Blog";
 import Testimonials from "./pages/Testimonials";
 import Contact from "./pages/Contact";
-import SmoothScrollProvider from "./lib/SmoothScrollProvider";
-import SmokeOverlay from "./components/Layout/SmokeOverlay";
+import CommercialOvens from "./ovens/commercial/CommercialOvens";
+import PortableOvens from "./ovens/portable/PortableOvens";
+import ResidentialOvens from "./ovens/residential/ResidentialOvens";
+
 const App: React.FC = () => {
   return (
     <Router>
-       <SmokeOverlay />
-      <SmoothScrollProvider />
       <ScrollToTop />
-      <div className="min-h-screen bg-white">
-        <Header />
+      <div className="min-h-screen bg-black">
         <main>
           <Layout>
             <Routes>
@@ -36,13 +33,16 @@ const App: React.FC = () => {
               <Route path="/blog" element={<Blog />} />
               <Route path="/testimonials" element={<Testimonials />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/commercialovens" element={<CommercialOvens />} />
+              <Route path="/portableovens" element={<PortableOvens />} />
+              <Route path="/residentialovens" element={<ResidentialOvens />} />
             </Routes>
           </Layout>
         </main>
+
         <Footer />
         <FloatingWhatsApp />
       </div>
-      <SmoothScrollProvider />
     </Router>
   );
 };

@@ -38,9 +38,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <>
-      <Header /* you can pass isScrolled if Header needs it */ />
+      <Header  />
       {/* Keep your gutter fix */}
-      <div className={`${isHome ? "" : "pt-16 sm:pt-20"} overflow-x-clip`}>
+      <div className="overflow-x-clip">
         {children}
       </div>
     </>

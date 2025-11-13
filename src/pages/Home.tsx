@@ -11,7 +11,7 @@ import Founder from "./Founder"
 import Installation from "./Installation";
 import RevolvingOven from "./RevolvingOven";
 import BrandCarousal from "./BrandCarousel";
-import Oven1 from "../assets/residential.png";
+import Oven1 from "../assets/oven2.png";
 import Oven2 from "../assets/portable.png";
 import Oven3 from "../assets/commercial.png";
 import Saif from "../assets/Saifbg.png"

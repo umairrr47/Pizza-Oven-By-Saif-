@@ -1,4 +1,5 @@
 /* src/index.css */
+@import "./styles/fonts.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -25,6 +26,11 @@ html, body {
   overflow-x: hidden;   /* legacy browsers ke liye safety */
 }
 
+body {
+  font-family: "Neue Haas Grotesk Display Pro", sans-serif;
+}
+
+
 #root, main {
   overflow-x: clip;     /* modern, more precise */
 }
@@ -46,3 +52,6 @@ html {
 }
 
 
+:root {
+  --off-white: #f9f9f9; /* 👈 or any shade you like */
+}

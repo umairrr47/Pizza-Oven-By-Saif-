@@ -3,13 +3,13 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      colors: {
+        "off-white": "var(--off-white)", // ✅ your CSS variable
+      },
       fontFamily: {
         // Normal text
-        sans: [
-          'Figtree',
-          'ui-sans-serif','system-ui','-apple-system','Segoe UI',
-          'Roboto','Helvetica Neue','Arial','Noto Sans','sans-serif'
-        ],
+        neuehaas: ['"Neue Haas Grotesk Display Pro"', 'sans-serif'],
+      helvetica: ['"Helvetica Now Display"', 'sans-serif'],
         // Headings
         heading: [
           'Roboto',

@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
                   className="h-24 w-auto object-contain" // Removed transform scale, increased height
                 />
                 
-                <div className="mb-4  text-[18px] md:text-[18px] lg:text-[18px] font-normal text-[#ffffff] tracking-[0.015em]">
+                <div className="mb-4  text-[16px] md:text-[16px] lg:text-[16px] font-light text-[#ffffff] tracking-[0.015em]">
                   <p>The Best Commercial Wood Fired</p>
                   <p>Pizza Oven In India</p>
                 </div>

@@ -63,27 +63,29 @@ const HeroPage: React.FC = () => {
           className="mt-8"
         >
           <Link
-            to="/products"
-            className="inline-flex items-center gap-3 rounded-full bg-[#d43804] hover:bg-[#b13003]
-                       px-6 md:px-7 py-3 text-white font-semibold shadow-[0_10px_24px_rgba(0,0,0,.35)]
+            to="/ovensshowcase"
+            className="inline-flex items-center gap-1 rounded-full bg-[#e30715] hover:bg-[#b0040f]
+                       px-4 md:px-5 py-3 text-white font-medium shadow-[0_10px_24px_rgba(0,0,0,.35)]
                        transition-transform duration-300 hover:scale-[1.03]"
           >
             {/* left circular nub */}
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/15">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                className="stroke-white"
-              >
-                <path
-                  d="M5 12h14M13 5l7 7-7 7"
-                  strokeWidth="2"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <span className="inline-flex items-center justify-center w-8 h-8 ">
+             <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="transition-transform group-hover:translate-x-0.5"
+              aria-hidden="true"
+            >
+              <path
+                d="M9 5l7 7-7 7"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
             </span>
             <span className="text-base md:text-lg">View Products</span>
           </Link>

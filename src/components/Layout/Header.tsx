@@ -24,7 +24,7 @@ const Header: React.FC = () => {
   }, [open]);
 
   const leftMenu = [
-    { name: "Who We Are", path: "/about-us" },
+    { name: "Who We Are", path: "/aboutus" },
     { name: "Contact Us", path: "/contact" },
     { name: "Blogs", path: "/blog" },
   ];
@@ -46,7 +46,7 @@ const Header: React.FC = () => {
 
   // small subtle nav text like ilforno
   const navTextClass =
-    "font-normal text-[14px] tracking-wide transition-colors duration-200";
+    "font-normal text-[14px] tracking-wide transition-colors duration-200 whitespace-nowrap";
 
   return (
     <motion.header
@@ -61,7 +61,7 @@ const Header: React.FC = () => {
         {/* Use a 3-column grid so logo sits centered absolutely like ilforno */}
         <div className="h-full grid grid-cols-3 items-center">
           {/* LEFT nav (desktop only) */}
-          <nav className="hidden lg:flex items-center justify-start gap-6 pl-2">
+          <nav className="hidden lg:flex items-center justify-start gap-6 pl-10">
             {leftMenu.map((item) => (
               <Link
                 key={item.name}
@@ -86,7 +86,7 @@ const Header: React.FC = () => {
           </div>
 
           {/* RIGHT nav (desktop only) */}
-          <nav className="hidden lg:flex items-center justify-end gap-6 pr-2">
+          <nav className="hidden lg:flex items-center justify-end gap-6 pr-8">
             {rightMenu.map((item) => (
               <Link
                 key={item.name}

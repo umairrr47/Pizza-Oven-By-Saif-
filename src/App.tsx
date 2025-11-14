@@ -17,6 +17,7 @@ import Contact from "./pages/Contact";
 import CommercialOvens from "./ovens/commercial/CommercialOvens";
 import PortableOvens from "./ovens/portable/PortableOvens";
 import ResidentialOvens from "./ovens/residential/ResidentialOvens";
+import AboutUs from "./About Us/AboutUs";
 
 const App: React.FC = () => {
   return (
@@ -36,6 +37,7 @@ const App: React.FC = () => {
               <Route path="/commercialovens" element={<CommercialOvens />} />
               <Route path="/portableovens" element={<PortableOvens />} />
               <Route path="/residentialovens" element={<ResidentialOvens />} />
+              <Route path="/aboutus" element={<AboutUs />} />
             </Routes>
           </Layout>
         </main>

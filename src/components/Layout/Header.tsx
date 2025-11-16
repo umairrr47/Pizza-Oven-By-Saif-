@@ -47,7 +47,7 @@ const Header: React.FC = () => {
   };
 
   const navTextClass =
-    "font-normal text-[14px] tracking-wide transition-colors duration-200 whitespace-nowrap";
+    "font-normal text-[16px] tracking-wide transition-colors duration-200 whitespace-nowrap";
 
   return (
     <>
@@ -62,7 +62,7 @@ const Header: React.FC = () => {
         <div className="relative w-full px-4 sm:px-6 lg:px-8" style={{ height: headerAnim.height }}>
           <div className="h-full grid grid-cols-3 items-center">
             {/* LEFT nav (desktop) */}
-            <nav className="hidden lg:flex items-center justify-start gap-6 pl-10">
+            <nav className="hidden lg:flex items-center justify-start gap-8 pl-10">
               {leftMenu.map((item) => (
                 <Link
                   key={item.name}
@@ -87,7 +87,7 @@ const Header: React.FC = () => {
             </div>
 
             {/* RIGHT nav (desktop) */}
-            <nav className="hidden lg:flex items-center justify-end gap-6 pr-8">
+            <nav className="hidden lg:flex items-center justify-end gap-8 pr-8">
               {rightMenu.map((item) => (
                 <Link
                   key={item.name}
@@ -99,7 +99,7 @@ const Header: React.FC = () => {
               ))}
 
               <a href="mailto:info@yourbrand.com" aria-label="Email" className="p-1 opacity-85 hover:opacity-100 transition-opacity">
-                <svg viewBox="0 0 24 24" width="20" height="20" className="stroke-white fill-none">
+                <svg viewBox="0 0 24 24" width="24" height="24" className="stroke-white fill-none">
                   <rect x="3" y="6" width="18" height="12" rx="2" strokeWidth="1.6" />
                   <path d="M3 7l9 6 9-6" strokeWidth="1.6" />
                 </svg>

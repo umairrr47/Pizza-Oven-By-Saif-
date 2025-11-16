@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Award, Users, Clock, CheckCircle } from "lucide-react";
 import { products, Product } from "../data/products";
 import QuickViewModal from "../components/UI/QuickViewModal";
-import OvensShowcase,{ OvenItem } from "./OvensShowcase";
+import OvensShowcase, { OvenItem } from "./OvensShowcase";
 import ProjectsInIndia from "./ProjectsInIndia";
 import Founder from "./Founder"
 import Installation from "./Installation";
@@ -23,7 +23,7 @@ const ovens: OvenItem[] = [
     blurb: "Built for high-volume service with consistent heat and durable construction.",
   },
   {
-    image:  Oven2,  // Remains the same
+    image: Oven2,  // Remains the same
     title: "Portable Oven",
     indexLabel: "02",
     blurb: "Crafted to be sturdy and lightweight, ideal for events.",
@@ -181,24 +181,19 @@ const Home: React.FC = () => {
       </Suspense>
 
       <section className="flow-root py-0 my-0">
-      <OvensShowcase
-        headline="Ovens range to choose from"
-        subcopy="At The Pizza Ovens, we specialize in crafting high-performance ovens engineered for excellence - delivering authentic Neapolitan pizzas in just 60–120 seconds. Our extensive range of models is designed to meet diverse needs, offering various capacities, outputs, and features to suit both home chefs and professional kitchens alike."
-        items={ovens}
-        autoPlayMs={6000}
-      />
+        <OvensShowcase />
       </section>
 
       <section className="flow-root py-0 my-0">
-  <Suspense fallback={null}>
-    <Founder founderImg={Saif} />
-  </Suspense>
-</section>
+        <Suspense fallback={null}>
+          <Founder founderImg={Saif} />
+        </Suspense>
+      </section>
 
       <Suspense fallback={null}>
         <Installation />
       </Suspense>
-      
+
       <Suspense fallback={null}>
         <ProjectsInIndia />
       </Suspense>

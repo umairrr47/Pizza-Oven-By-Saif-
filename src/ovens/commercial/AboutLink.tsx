@@ -39,8 +39,8 @@ export default function HeroCommercial({
           <div className="w-full lg:w-3/4 text-white">
             {/* Heading */}
             <h1
-               className="text-[clamp(30px,3.2vw,56px)] leading-[1.28] font-light tracking-[-0.005em] text-gray-100 mb-4"
-                  style={{ fontFamily: '"NeueHaasGroteskDisp Pro", sans-serif', wordSpacing: "-0.08em" }}
+              className="text-[clamp(30px,3.2vw,56px)] leading-[1.28] font-light tracking-[-0.005em] text-gray-100 mb-4"
+              style={{ fontFamily: '"NeueHaasGroteskDisp Pro", sans-serif', wordSpacing: "-0.08em" }}
             >
               <span className="inline-block">{title}</span>
             </h1>
@@ -55,30 +55,30 @@ export default function HeroCommercial({
 
             {/* CTA */}
             <a
-  href="#about"
-  className="inline-flex items-center gap-3 bg-gradient-to-b from-[#e30616] to-[#c9040f] hover:from-[#ff1a23] hover:to-[#e30715] text-white rounded-full px-6 md:px-8 py-1.5 md:py-2.5 shadow-lg transition-transform active:scale-95"
-  aria-label="About Us"
->
-  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/10">
-    {/* small chevron icon */}
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      className="stroke-white"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M9 18l6-6-6-6" stroke="currentColor"></path>
-    </svg>
-  </span>
-  <span className="font-medium text-[15px] md:text-[16px]">
-    {ctaLabel}
-  </span>
-</a>
+              href="#about"
+              className="inline-flex items-center gap-3 bg-gradient-to-b from-[#e30616] to-[#c9040f] hover:from-[#ff1a23] hover:to-[#e30715] text-white rounded-full px-6 md:px-8 py-1.5 md:py-2.5 shadow-lg transition-transform active:scale-95"
+              aria-label="About Us"
+            >
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/10">
+                {/* small chevron icon */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="stroke-white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 18l6-6-6-6" stroke="currentColor"></path>
+                </svg>
+              </span>
+              <span className="font-medium text-[15px] md:text-[16px]">
+                {ctaLabel}
+              </span>
+            </a>
 
           </div>
         </div>

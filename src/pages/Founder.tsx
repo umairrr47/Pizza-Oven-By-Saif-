@@ -14,11 +14,11 @@ const Founder: React.FC<Props> = ({
   founderImg,
   name = "Saif Ameer",
   role = "Founder & CEO",
-  quote = "After building more than 500 ovens and manufacturing for 15 years I can confidently guarantee each oven model and I understand the pizza Making and hospitality business inside out.",
+  quote = "After building 500+ ovens and more than a decade in manufacturing and onsite installations, I confidently guarantee every model. I know pizza making and the hospitality business inside out — from heat management to real-world kitchen workflows.",
   bullets = [
-    "Moved to India in 1994",
-    "Did the majority of good projects of the country.",
-    "One of the most prestigious pizzaiolo in India."
+    "Started crafting ovens in Delhi in 2014",
+    "Delivered high-quality projects across India.",
+    "Widely respected by professional chefs and restaurateurs."
   ]
 }) => {
   const ref = useRef(null);
@@ -88,7 +88,7 @@ const Founder: React.FC<Props> = ({
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <p className="text-sm text-gray-300 leading-relaxed">
-              Hands-on entrepreneur driven by innovation and a passion for serving others.
+              Hands-on entrepreneur driven by innovation and a passion for serving chefs and hospitality.
             </p>
           </motion.div>
 
@@ -243,21 +243,22 @@ const Founder: React.FC<Props> = ({
                 whileTap={{ scale: 0.95 }}
               >
                 <span>About Us</span>
-                <motion.svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="group-hover:translate-x-1 transition-transform duration-300"
-                >
-                  <path
-                    d="M5 12h14M13 5l7 7-7 7"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </motion.svg>
+               <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="transition-transform group-hover:translate-x-0.5"
+              aria-hidden="true"
+            >
+              <path
+                d="M9 5l7 7-7 7"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
               </motion.a>
             </motion.div>
           </motion.div>

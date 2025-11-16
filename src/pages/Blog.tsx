@@ -31,10 +31,10 @@ const Blog: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-100 mb-4">
             Pizza Oven Blog
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-100 max-w-3xl mx-auto leading-relaxed">
             Expert insights, cooking tips, and industry knowledge to help you get the most 
             out of your pizza oven investment.
           </p>

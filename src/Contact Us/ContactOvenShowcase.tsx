@@ -624,13 +624,14 @@ const FALLBACK_ITEMS: OvenItem[] = [
   },
 ];
 
-const OvensShowcase: React.FC<Props> = ({
+const ContactOvensShowcase: React.FC<Props> = ({
   headline = "Ovens range to choose from",
   subcopy = "At The Pizza Ovens, we specialize in crafting high-performance ovens engineered for excellence — delivering authentic Neapolitan pizzas in just 60–120 seconds. Our extensive range of models is designed to meet diverse needs, offering various capacities, outputs, and features to suit both home chefs and professional kitchens alike.",
   items = FALLBACK_ITEMS,
-  autoPlayMs = 3000,
+  autoPlayMs = 6500,
   onExplore,
 }) => {
+    
   const safeItems = items?.length ? items : FALLBACK_ITEMS;
   const [i, setI] = useState(0);
   const cur = safeItems[Math.min(i, safeItems.length - 1)];
@@ -661,6 +662,8 @@ const OvensShowcase: React.FC<Props> = ({
     const last = parts.pop() as string;
     return [parts.join(" "), last];
   }, [headline]);
+
+  
 
   // Entrance animation
   useLayoutEffect(() => {
@@ -823,9 +826,10 @@ const OvensShowcase: React.FC<Props> = ({
   if (!cur) return null;
 
   return (
+    <>
     <section
       ref={rootRef}
-      className="relative overflow-hidden bg-[#0a0b0c] text-white min-h-screen flex flex-col justify-center py-8 sm:py-12 md:py-16 lg:py-20"
+      className="relative overflow-hidden bg-[#1a1a1a] text-white min-h-screen flex flex-col justify-center py-8 sm:py-12 md:py-16 lg:py-20"
       aria-label="Ovens showcase carousel"
       aria-roledescription="carousel"
       onMouseEnter={() => setPaused(true)}
@@ -1049,7 +1053,8 @@ const OvensShowcase: React.FC<Props> = ({
 
             {/* Title and blurb */}
             <div className="flex-1 min-w-0 text-center sm:text-left">
-              <h3 className="text-[clamp(22px,3.25vw,40px)] font-semibold leading-tight tracking-[-0.015em] mb-1">
+              <h3  className="text-[clamp(38px,3vw,48px)] font-medium text-[#BCBCBC] tracking-[0.015em]"
+                  style={{ fontFamily: '"NeueHaasGroteskDisp Pro", sans-serif' }}>
                 {cur.title}
               </h3>
               <p
@@ -1134,7 +1139,10 @@ const OvensShowcase: React.FC<Props> = ({
         </div>
       </div>
     </section>
+
+     
+    </>
   );
 };
 
-export default OvensShowcase;
+export default ContactOvensShowcase;

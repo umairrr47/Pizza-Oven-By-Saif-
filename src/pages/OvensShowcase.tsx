@@ -580,9 +580,6 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import CommercialOvens from "../ovens/commercial/CommercialOvens";
-import PortableOvens from "../ovens/portable/PortableOvens";
-import ResidentialOvens from "../ovens/residential/ResidentialOvens";
 gsap.registerPlugin(ScrollTrigger);
 
 // Local assets (same as your file)

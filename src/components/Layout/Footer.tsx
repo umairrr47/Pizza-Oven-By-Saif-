@@ -7,7 +7,7 @@ import Footimg from "../../assets/footer.png"
 
 const Footer: React.FC = () => {
   return (
-    <footer className="relative bg-black text-white">
+    <footer className="relative bg-[#0e0e0e] text-white">
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">

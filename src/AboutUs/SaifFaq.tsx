@@ -157,33 +157,54 @@ export default function SaifFaq() {
         </div>
 
         {/* RIGHT — Contact card */}
-        <aside className="w-[283px] h-[407px] bg-[#1e1e1e] text-white p-8 rounded-2xl shadow-lg flex flex-col">
-  <h3 className="text-2xl font-light mb-6">We're Here to Help</h3>
+          <aside className="
+          w-full
+          max-w-[360px]
+          mx-auto
+          md:mx-0
+          md:w-[283px]
+          md:h-[407px]
+          bg-[#1e1e1e]
+          text-white
+          p-6
+          md:p-8
+          rounded-2xl
+          shadow-lg
+          flex flex-col
+        ">
+          <h3 className="text-2xl font-light mb-6 text-center md:text-left">We're Here to Help</h3>
 
-  <form className="space-y-4 flex-1 flex flex-col">
-    <input
-      className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors"
-      placeholder="Your Name"
-    />
-    <input
-      className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors"
-      placeholder="Phone Number"
-    />
-    <input
-      className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors"
-      placeholder="Email Address"
-    />
-    <textarea
-      rows="2"
-      className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors resize-none flex-1 min-h-[60px]"
-      placeholder="Message"
-    ></textarea>
+          <form className="space-y-4 flex-1 flex flex-col">
+            <input
+              className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors"
+              placeholder="Your Name"
+              aria-label="Your Name"
+            />
+            <input
+              className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors"
+              placeholder="Phone Number"
+              aria-label="Phone Number"
+            />
+            <input
+              className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors"
+              placeholder="Email Address"
+              aria-label="Email Address"
+            />
+            <textarea
+              rows="2"
+              className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors resize-none flex-1 min-h-[60px]"
+              placeholder="Message"
+              aria-label="Message"
+            ></textarea>
 
-    <button className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-full text-white text-lg transition-colors mt-2">
-      Submit
-    </button>
-  </form>
-</aside>
+            <button
+              type="submit"
+              className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-full text-white text-lg transition-colors mt-2"
+            >
+              Submit
+            </button>
+          </form>
+        </aside>
       </div>
 
       <div className="max-w-[1250px] mx-auto mt-12">

@@ -577,8 +577,12 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import CommercialOvens from "../ovens/commercial/CommercialOvens";
+import PortableOvens from "../ovens/portable/PortableOvens";
+import ResidentialOvens from "../ovens/residential/ResidentialOvens";
 gsap.registerPlugin(ScrollTrigger);
 
 // Local assets (same as your file)
@@ -591,6 +595,7 @@ export type OvenItem = {
   title: string;
   indexLabel: string;
   blurb?: string;
+  link?: string;
 };
 
 type Props = {
@@ -608,12 +613,14 @@ const FALLBACK_ITEMS: OvenItem[] = [
     indexLabel: "01",
     blurb:
       "Built for high-volume service with consistent heat and durable construction.",
+    link: "/commercialovens",
   },
   {
     image: Oven2,
     title: "Portable Oven",
     indexLabel: "02",
     blurb: "Crafted to be sturdy and lightweight, ideal for events.",
+    link: "/portableovens",
   },
   {
     image: Oven1,
@@ -621,8 +628,10 @@ const FALLBACK_ITEMS: OvenItem[] = [
     indexLabel: "03",
     blurb:
       "Compact footprint with authentic stone-baked performance for home kitchens and patios.",
+    link: "/residentialovens",
   },
 ];
+
 
 const OvensShowcase: React.FC<Props> = ({
   headline = "Ovens range to choose from",
@@ -631,6 +640,17 @@ const OvensShowcase: React.FC<Props> = ({
   autoPlayMs = 3000,
   onExplore,
 }) => {
+  const navigate = (() => {
+    try {
+      // try to use react-router's useNavigate
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return useNavigate();
+    } catch {
+      // if useNavigate can't be used (no react-router), return undefined and we will fall back to window.location
+      return undefined as unknown as ReturnType<typeof useNavigate>;
+    }
+  })();
+
   const safeItems = items?.length ? items : FALLBACK_ITEMS;
   const [i, setI] = useState(0);
   const cur = safeItems[Math.min(i, safeItems.length - 1)];
@@ -821,6 +841,44 @@ const OvensShowcase: React.FC<Props> = ({
   );
 
   if (!cur) return null;
+
+   // helper: create a slug from the title
+  const makeSlug = (t: string) =>
+    t
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+  // New: navigation handler for Explore button
+  const handleExplore = (item: OvenItem, index: number) => {
+    // call external callback first (if present)
+    onExplore?.(item, index);
+
+    // determine destination
+    const dest = item.link
+      ? item.link
+      : `/ovens/${makeSlug(item.title || `item-${index + 1}`)}`;
+
+    // if dest is an absolute url (starts with http) use window.location
+    const isAbsolute = /^https?:\/\//i.test(dest);
+
+    if (isAbsolute) {
+      window.location.href = dest;
+      return;
+    }
+
+    // use react-router navigate if available, otherwise fallback to window.location
+    try {
+      if (typeof navigate === "function") {
+        navigate(dest);
+      } else {
+        window.location.href = dest;
+      }
+    } catch (err) {
+      // fallback
+      window.location.href = dest;
+    }
+  };
 
   return (
     <section
@@ -1063,7 +1121,7 @@ const OvensShowcase: React.FC<Props> = ({
             {/* Explore button */}
             <button
               type="button"
-              onClick={() => onExplore?.(cur, i)}
+              onClick={() => handleExplore(cur, i)}
               aria-describedby="slide-blurb"
               className="
                 inline-flex items-center gap-2.5
@@ -1079,22 +1137,22 @@ const OvensShowcase: React.FC<Props> = ({
               "
             >
               <span>Explore</span>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="transition-transform group-hover:translate-x-1"
-                aria-hidden="true"
-              >
-                <path
-                  d="M5 12h14M13 5l7 7-7 7"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+               <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="transition-transform group-hover:translate-x-0.5"
+              aria-hidden="true"
+            >
+              <path
+                d="M9 5l7 7-7 7"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
             </button>
           </div>
 

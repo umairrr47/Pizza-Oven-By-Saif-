@@ -25,7 +25,7 @@ const BrandsLoop: React.FC = () => {
   const HEIGHT_PX_SM = 60;
   const GAP_REM = 3;
   const GAP_REM_SM = 2;
-  const SPEED_SEC = 26;
+  const SPEED_SEC = 10;
 
   // triple-track for seamless looping
   const track = [...logos, ...logos, ...logos];
@@ -49,8 +49,8 @@ const BrandsLoop: React.FC = () => {
 
     // when user hovers (desktop), speed-up — add listeners
     const enter = () => {
-      el.style.animationDuration = `${SPEED_SEC * 0.7}s`;
-      (el.style as any).webkitAnimationDuration = `${SPEED_SEC * 0.7}s`;
+      el.style.animationDuration = `${SPEED_SEC * 0.5}s`;
+      (el.style as any).webkitAnimationDuration = `${SPEED_SEC * 0.5}s`;
     };
     const leave = () => {
       el.style.animationDuration = `${SPEED_SEC}s`;
@@ -72,7 +72,7 @@ const BrandsLoop: React.FC = () => {
         <div className="pointer-events-none absolute left-0 top-0 h-full w-24 sm:w-32 bg-gradient-to-r from-white to-transparent z-20" />
         <div className="pointer-events-none absolute right-0 top-0 h-full w-24 sm:w-32 bg-gradient-to-l from-white to-transparent z-20" />
 
-        <div className="relative overflow-hidden py-6">
+        <div className="relative overflow-hidden py-3">
           {/* marquee track */}
           <div
             ref={marqueeRef}

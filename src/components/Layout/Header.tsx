@@ -47,7 +47,7 @@ const Header: React.FC = () => {
   };
 
   const navTextClass =
-    "font-normal text-[16px] tracking-wide transition-colors duration-200 whitespace-nowrap";
+    "font-light text-[14px] tracking-wide transition-colors duration-200 whitespace-nowrap";
 
   return (
     <>
@@ -67,7 +67,7 @@ const Header: React.FC = () => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`${navTextClass} ${isActive(item.path) ? "text-white" : "text-white/80 hover:text-red-700"}`}
+                  className={`${navTextClass} ${isActive(item.path) ? "text-white" : "text-white/80 hover:text-[#E30613]"}`}
                 >
                   {item.name}
                 </Link>

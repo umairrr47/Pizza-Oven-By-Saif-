@@ -14,9 +14,9 @@ import Blog from "./pages/Blog";
 import CommercialOvens from "./ovens/commercial/CommercialOvens";
 import PortableOvens from "./ovens/portable/PortableOvens";
 import ResidentialOvens from "./ovens/residential/ResidentialOvens";
-import AboutUs from "./About Us/AboutUs";
+import AboutUs from "./AboutUs/AboutUs";
 import OvensShowcase from "./pages/OvensShowcase";
-import ContactHome from "./Contact Us/contacthome";
+import ContactHome from "./ContactUs/ContactHome";
 
 
 const App: React.FC = () => {

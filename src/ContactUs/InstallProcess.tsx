@@ -1,7 +1,8 @@
 // src/components/InstallProcessSection.tsx
-import React from "react";
+import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import CurveImg from "../assets/process-line.webp"; // your image (1682 x 554)
+import { sendEmail } from "../lib/emailService";
 
 const IMG_W = 1645;
 const IMG_H = 554;
@@ -52,6 +53,92 @@ const stepVariant = {
 
 export default function InstallProcess() {
     const stepMargins = ["md:mt-0", "md:-mt-9", "md:-mt-20", "md:-mt-32"];
+
+    // Form refs / state for EmailJS
+    const formRef = useRef<HTMLFormElement | null>(null);
+    const [sending, setSending] = useState(false);
+    const [status, setStatus] = useState<string | null>(null);
+
+    // shared submit logic (reads FormData from formRef)
+    const submitUsingFormRef = async () => {
+        if (sending) return;
+        setStatus(null);
+        setSending(true);
+
+        try {
+            const formEl = formRef.current;
+            if (!formEl) {
+                setStatus("Form not found on the page.");
+                setSending(false);
+                return;
+            }
+
+            const fd = new FormData(formEl);
+
+            const payload = {
+                full_name: fd.get("full-name")?.toString() ?? "",
+                phone_number: fd.get("phone-number")?.toString() ?? "",
+                email_address: fd.get("email-address")?.toString() ?? "",
+                selected_product: fd.get("selected-product")?.toString() ?? "",
+                City: fd.get("city")?.toString() ?? "",
+                message: fd.get("message")?.toString() ?? "",
+                page_link: typeof window !== "undefined" ? window.location.href : "",
+                source: "InstallProcessSection",
+                full_summary: JSON.stringify(Object.fromEntries(fd as any)),
+            };
+
+            if (import.meta.env && import.meta.env.DEV) {
+                // eslint-disable-next-line no-console
+                console.debug("[InstallProcessSection] payload:", payload);
+            }
+
+            const res = await sendEmail(payload);
+
+            if (res.ok) {
+                setStatus("Thanks — we received your enquiry.");
+                formEl.reset();
+            } else {
+                // eslint-disable-next-line no-console
+                console.error("[InstallProcessSection] Email send failed:", (res as any).error);
+                let errMsg = "There was a problem sending your enquiry. Please try again.";
+                const err = (res as any).error;
+                if (err) {
+                    if (err.status || err.statusText) {
+                        errMsg = `Error: ${err.status || ""} ${err.statusText || ""}`.trim();
+                    } else if (err.text) {
+                        errMsg = String(err.text).slice(0, 200);
+                    } else if (err.message) {
+                        errMsg = String(err.message);
+                    }
+                }
+                setStatus(errMsg);
+            }
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error("[InstallProcessSection] Unexpected error sending email:", err);
+            setStatus("Unexpected error. Please check console and try again.");
+        } finally {
+            setSending(false);
+            setTimeout(() => setStatus(null), 4500);
+        }
+    };
+
+    // click-based submit to avoid native form navigation/reload
+    const submitFromButton = async (ev?: React.MouseEvent) => {
+        ev?.stopPropagation();
+        await submitUsingFormRef();
+    };
+
+    // keep onSubmit handler as a fallback (prevents native submit)
+    const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+        try {
+            e.preventDefault();
+            if (typeof (e as any).stopPropagation === "function") (e as any).stopPropagation();
+            const native = (e as any).nativeEvent;
+            if (native && typeof native.preventDefault === "function") native.preventDefault();
+        } catch {}
+        await submitUsingFormRef();
+    };
 
     return (
         <>
@@ -219,13 +306,13 @@ export default function InstallProcess() {
           </h2>
 
           <p className="text-[15px] text-[#6b6b6b] leading-[1.8] max-w-[720px]">
-            To reach Marco. Please ensure your email address is accurate, as minor typos may prevent a
+            To reach Saif. Please ensure your email address is accurate, as minor typos may prevent a
             response (3-5% of inquiries may not be answered due to this)
           </p>
         </div>
 
         {/* Form grid: 4 cols on md for precise label/input alignment */}
-        <form className="relative">
+        <form ref={formRef} onSubmit={handleSubmit} className="relative" noValidate>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-8 items-start">
             {/* Row 1: My name is — full width input under label */}
             <div className="md:col-span-1 flex items-center">
@@ -238,6 +325,7 @@ export default function InstallProcess() {
             </div>
             <div className="md:col-span-3">
               <input
+                name="full-name"
                 type="text"
                 placeholder="Your Name"
                 className="w-full bg-transparent border-0 border-b border-gray-300 focus:outline-none focus:border-gray-400 py-3 text-[15px]"
@@ -256,6 +344,7 @@ export default function InstallProcess() {
 
             <div className="md:col-span-1">
               <input
+                name="phone-number"
                 type="tel"
                 placeholder="Phone Number"
                 className="w-full bg-transparent border-0 border-b border-gray-300 focus:outline-none focus:border-gray-400 py-3 text-[15px]"
@@ -273,6 +362,7 @@ export default function InstallProcess() {
 
             <div className="md:col-span-1">
               <input
+                name="email-address"
                 type="email"
                 placeholder="Email Address"
                 className="w-full bg-transparent border-0 border-b border-gray-300 focus:outline-none focus:border-gray-400 py-3 text-[15px]"
@@ -291,6 +381,7 @@ export default function InstallProcess() {
 
             <div className="md:col-span-1">
               <select
+                name="selected-product"
                 defaultValue=""
                 className="w-full bg-transparent border-0 border-b border-gray-300 focus:outline-none focus:border-gray-400 py-3 text-[15px] appearance-none"
               >
@@ -314,6 +405,7 @@ export default function InstallProcess() {
 
             <div className="md:col-span-1">
               <input
+                name="city"
                 type="text"
                 placeholder="City Name"
                 className="w-full bg-transparent border-0 border-b border-gray-300 focus:outline-none focus:border-gray-400 py-3 text-[15px]"
@@ -332,6 +424,7 @@ export default function InstallProcess() {
 
             <div className="md:col-span-3">
               <textarea
+                name="message"
                 placeholder="Message"
                 rows={4}
                 className="w-full bg-transparent border-0 border-b border-gray-300 focus:outline-none focus:border-gray-400 py-3 text-[15px] resize-none"
@@ -342,11 +435,13 @@ export default function InstallProcess() {
           {/* Submit area — placed visually as bottom-right of the form */}
           <div className="mt-8 md:mt-12 flex justify-end">
             <button
-              type="submit"
+              type="button"
+              onClick={submitFromButton}
+              disabled={sending}
               className="inline-flex items-center gap-3 bg-[#e21a25] hover:bg-[#d11720] text-white rounded-full px-6 py-3 text-[15px] shadow-md"
             >
               <span className="inline-block w-2 h-2 rounded-full bg-white/20" />
-              <span>Submit</span>
+              <span>{sending ? "Sending..." : "Submit"}</span>
               <svg
                 width="14"
                 height="14"
@@ -366,6 +461,12 @@ export default function InstallProcess() {
             </button>
           </div>
         </form>
+
+        {status && (
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-700">{status}</p>
+          </div>
+        )}
       </div>
     </section>
 

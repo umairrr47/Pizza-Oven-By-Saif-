@@ -1,6 +1,7 @@
 // src/sections/EnquiryFormSection.tsx
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { motion, Variants } from "framer-motion";
+import { sendEmail, EmailPayload } from "../lib/emailService"; // adjust path if needed
 
 type Props = {
   companyEmail?: string;
@@ -22,19 +23,62 @@ const item: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
-
 const EnquiryFormSection: React.FC<Props> = ({
   companyEmail = "info@thepizzaovens.com",
   phoneDisplay = "+91 989 959 35 26",
   onSubmit,
 }) => {
   const formRef = useRef<HTMLFormElement | null>(null);
+  const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    if (onSubmit) await onSubmit(fd);
-    e.currentTarget.reset();
+    setStatus(null);
+    setSending(true);
+
+    const formEl = e.currentTarget;
+    const fd = new FormData(formEl);
+
+    // If parent passed a custom onSubmit, call it first (non-blocking if it doesn't return a promise).
+    try {
+      if (onSubmit) await onSubmit(fd);
+    } catch (err) {
+      // Let email sending still continue even if parent onSubmit failed.
+      console.warn("onSubmit handler threw:", err);
+    }
+
+    // Build payload matching your EmailJS template keys
+    const payload: EmailPayload = {
+      full_name: fd.get("full-name")?.toString() ?? "",
+      selected_product: fd.get("selected-product")?.toString() ?? "",
+      phone_number: fd.get("phone-number")?.toString() ?? "",
+      email_address: fd.get("email-address")?.toString() ?? "",
+      message: fd.get("message")?.toString() ?? "",
+      page_link:
+        (fd.get("page-link")?.toString() as string) ||
+        (typeof window !== "undefined" ? window.location.href : ""),
+      source: "EnquiryFormSection",
+      full_summary: JSON.stringify(Object.fromEntries(fd as any)),
+    };
+
+    try {
+      const res = await sendEmail(payload);
+      if (res?.ok) {
+        setStatus("Thanks, we received your enquiry.");
+        formRef.current?.reset();
+      } else {
+        console.error("Email send failed:", res?.error);
+        setStatus("There was a problem sending your enquiry. Please try again.");
+      }
+    } catch (err) {
+      console.error("Unexpected error sending email:", err);
+      setStatus("Unexpected error. Please try again.");
+    } finally {
+      setSending(false);
+      // hide the status after a short delay
+      setTimeout(() => setStatus(null), 4000);
+    }
   };
 
   return (
@@ -190,10 +234,17 @@ const EnquiryFormSection: React.FC<Props> = ({
                 className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-4 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 text-lg"
                 whileHover={{ scale: 1.05, boxShadow: "0 20px 40px rgba(239, 68, 68, 0.4)" }}
                 whileTap={{ scale: 0.95 }}
+                disabled={sending}
               >
-                Submit
+                {sending ? "Sending..." : "Submit"}
               </motion.button>
             </motion.div>
+
+            {status && (
+              <div className="mt-4 text-right">
+                <span className="text-sm text-gray-300">{status}</span>
+              </div>
+            )}
           </form>
         </motion.div>
       </div>

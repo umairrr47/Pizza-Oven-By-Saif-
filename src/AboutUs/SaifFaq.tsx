@@ -1,31 +1,24 @@
-// SaifFaq.jsx
-import React, { useState } from "react";
-
-/**
- * Pixel-friendly FAQ accordion.
- * - Answers can be JSX (paragraphs, lists).
- * - Smooth open/close with larger max-height so content isn't clipped.
- * - White background and typography tuned to your screenshot.
- */
+// src/components/SaifFaq.jsx
+import React, { useState, useRef } from "react";
+import { sendEmail } from "../lib/emailService"; // adjust path if needed
 
 const FAQS = [
   {
     id: 1,
     q: "What is the best oven to buy?",
     a: (
-    <div className="text-[16px] md:text-[17px] text-[#575757] leading-[1.6] tracking-[0.02em] pl-14">
-      <p className="mb-4 text-[16px] md:text-[17px] text-[#575757] leading-[1.6] tracking-[0.02em]">
-        All Saif's ovens deliver exceptional quality and perfectly baked pizzas. 
-        However, the right choice depends on your specific needs. Key considerations include:
-      </p>
+      <div className="text-[16px] md:text-[17px] text-[#575757] leading-[1.6] tracking-[0.02em] pl-14">
+        <p className="mb-4 text-[16px] md:text-[17px] text-[#575757] leading-[1.6] tracking-[0.02em]">
+          All Saif's ovens deliver exceptional quality and perfectly baked pizzas. 
+          However, the right choice depends on your specific needs. Key considerations include:
+        </p>
 
-      <ol className="pl-6 list-decimal space-y-2 text-[16px] md:text-[17px] text-[#575757] leading-[1.6] tracking-[0.02em]">
-        <li>Expected output</li>
-        <li>Mobility</li>
-        <li>Budget</li>
-      </ol>
-    </div>
-      
+        <ol className="pl-6 list-decimal space-y-2 text-[16px] md:text-[17px] text-[#575757] leading-[1.6] tracking-[0.02em]">
+          <li>Expected output</li>
+          <li>Mobility</li>
+          <li>Budget</li>
+        </ol>
+      </div>
     ),
   },
   {
@@ -78,8 +71,57 @@ const FAQS = [
 
 export default function SaifFaq() {
   const [openId, setOpenId] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState(null);
+  const formRef = useRef(null);
 
   const toggle = (id) => setOpenId((prev) => (prev === id ? null : id));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus(null);
+    setSending(true);
+
+    try {
+      const fd = new FormData(e.currentTarget);
+
+      // Build payload matching your EmailJS template variable names
+      const payload = {
+        // include both variants where helpful — template prefers these names
+        full_name: fd.get("full-name")?.toString() ?? fd.get("name")?.toString() ?? "",
+        phone_number: fd.get("phone-number")?.toString() ?? fd.get("phone")?.toString() ?? "",
+        email_address: fd.get("email-address")?.toString() ?? fd.get("email")?.toString() ?? "",
+        selected_product: fd.get("selected-product")?.toString() ?? "",
+        page_link: (fd.get("page-link")?.toString() as string) || (typeof window !== "undefined" ? window.location.href : ""),
+        source: "SaifFaq",
+        message: fd.get("message")?.toString() ?? "",
+        full_summary: JSON.stringify(Object.fromEntries(fd)),
+      };
+
+      // Debug in dev (sendEmail also logs in dev)
+      if (import.meta.env && import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.debug("[SaifFaq] sending payload:", payload);
+      }
+
+      const res = await sendEmail(payload);
+
+      if (res?.ok) {
+        setStatus("Thanks — we received your enquiry.");
+        // reset form fields
+        formRef.current?.reset();
+      } else {
+        console.error("Email send failed:", res?.error);
+        setStatus("There was a problem sending your enquiry. Please try again.");
+      }
+    } catch (err) {
+      console.error("Unexpected error sending email:", err);
+      setStatus("Unexpected error. Please try again.");
+    } finally {
+      setSending(false);
+      setTimeout(() => setStatus(null), 4500);
+    }
+  };
 
   return (
     <section className="w-full bg-white py-16">
@@ -157,7 +199,8 @@ export default function SaifFaq() {
         </div>
 
         {/* RIGHT — Contact card */}
-          <aside className="
+        <aside
+          className="
           w-full
           max-w-[360px]
           mx-auto
@@ -171,26 +214,36 @@ export default function SaifFaq() {
           rounded-2xl
           shadow-lg
           flex flex-col
-        ">
+        "
+        >
           <h3 className="text-2xl font-light mb-6 text-center md:text-left">We're Here to Help</h3>
 
-          <form className="space-y-4 flex-1 flex flex-col">
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            className="space-y-4 flex-1 flex flex-col"
+          >
+            {/* NOTE: name attributes below must match what's read in handleSubmit */}
             <input
+              name="full-name"
               className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors"
               placeholder="Your Name"
               aria-label="Your Name"
             />
             <input
+              name="phone-number"
               className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors"
               placeholder="Phone Number"
               aria-label="Phone Number"
             />
             <input
+              name="email-address"
               className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors"
               placeholder="Email Address"
               aria-label="Email Address"
             />
             <textarea
+              name="message"
               rows="2"
               className="w-full bg-transparent border-b border-gray-600 py-2 text-gray-200 placeholder-gray-400 focus:outline-none focus:border-gray-400 transition-colors resize-none flex-1 min-h-[60px]"
               placeholder="Message"
@@ -199,10 +252,13 @@ export default function SaifFaq() {
 
             <button
               type="submit"
-              className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-full text-white text-lg transition-colors mt-2"
+              disabled={sending}
+              className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-full text-white text-lg transition-colors mt-2 disabled:opacity-60"
             >
-              Submit
+              {sending ? "Sending..." : "Submit"}
             </button>
+
+            {status && <p className="text-sm text-gray-200 mt-2 text-center">{status}</p>}
           </form>
         </aside>
       </div>

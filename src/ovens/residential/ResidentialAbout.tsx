@@ -1,7 +1,8 @@
 // src/sections/CommercialCostSection.tsx
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { sendEmail } from "../../lib/emailService"; // <-- adjust path if needed
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +16,11 @@ export default function ResidentialAbout({ className = "" }: Props) {
   const featuresUlRef = useRef<HTMLUListElement | null>(null);
   const ovenTypesRef = useRef<HTMLDivElement | null>(null);
   const formBoxRef = useRef<HTMLDivElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  // email send state
+  const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (!rootRef.current) return;
@@ -116,6 +122,68 @@ export default function ResidentialAbout({ className = "" }: Props) {
     };
   }, []);
 
+  // form submit handler using emailService
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    setStatus(null);
+    setSending(true);
+
+    try {
+      const fd = new FormData(e.currentTarget);
+
+      // Use the same template variable names as other working components
+      const payload = {
+        full_name: fd.get("full-name")?.toString() ?? fd.get("name")?.toString() ?? "",
+        phone_number: fd.get("phone-number")?.toString() ?? fd.get("phone")?.toString() ?? "",
+        email_address: fd.get("email-address")?.toString() ?? fd.get("email")?.toString() ?? "",
+        selected_product: fd.get("selected-product")?.toString() ?? "",
+        company: fd.get("company")?.toString() ?? "",
+        page_link:
+          (fd.get("page-link")?.toString() as string) ||
+          (typeof window !== "undefined" ? window.location.href : ""),
+        source: "ResidentialAbout",
+        message: fd.get("message")?.toString() ?? "",
+        full_summary: JSON.stringify(Object.fromEntries(fd as any)),
+      };
+
+      if (import.meta.env && import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.debug("[ResidentialAbout] sending payload:", payload);
+      }
+
+      const result = await sendEmail(payload);
+
+      if (result.ok) {
+        setStatus("Thanks — we received your enquiry.");
+        formRef.current?.reset();
+      } else {
+        // try to extract useful message from error object
+        let errMsg = "There was a problem sending your enquiry. Please try again.";
+        const err = (result as any).error;
+        if (err) {
+          if (err.status || err.statusText) {
+            errMsg = `Error: ${err.status || ""} ${err.statusText || ""}`.trim();
+          } else if (err.text) {
+            errMsg = String(err.text).slice(0, 200);
+          } else if (err.message) {
+            errMsg = String(err.message);
+          }
+        }
+        setStatus(errMsg);
+        if (import.meta.env && import.meta.env.DEV) {
+          // eslint-disable-next-line no-console
+          console.error("[ResidentialAbout] send failed detail:", result.error);
+        }
+      }
+    } catch (err) {
+      console.error("Unexpected error sending email:", err);
+      setStatus("Unexpected error. Please try again.");
+    } finally {
+      setSending(false);
+      setTimeout(() => setStatus(null), 4500);
+    }
+  };
+
   return (
     <section ref={rootRef} className={`commercial-about-section commercial-cost-section bg-white ${className}`}>
       <div className="max-w-[1920px] mx-auto bg-[#0b0b0b] com-padding rounded-section px-6 sm:px-12">
@@ -190,7 +258,7 @@ export default function ResidentialAbout({ className = "" }: Props) {
                   <div className="bg-[#292929] border border-gray-800 rounded-xl p-6 shadow-lg space-y-4">
                     <h5 className="text-[clamp(20px,2vw,28px)] font-normal text-gray-100 tracking-[0.025em] mb-2">We’re Here to Help</h5>
 
-                    <form action="#" method="post" className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+                    <form ref={formRef} action="#" method="post" className="space-y-3" onSubmit={handleSubmit}>
                       <div>
                         <input
                           name="full-name"
@@ -232,9 +300,11 @@ export default function ResidentialAbout({ className = "" }: Props) {
                       <input type="hidden" name="company" />
                       <input type="hidden" name="page-link" />
 
+                      {status && <p className="text-sm text-gray-200">{status}</p>}
+
                       <div className="pt-2">
-                        <button type="submit" className="w-full py-3 rounded-full bg-[#e30715] text-white font-medium">
-                          Submit
+                        <button type="submit" disabled={sending} className="w-full py-3 rounded-full bg-[#e30715] text-white font-medium disabled:opacity-60">
+                          {sending ? "Sending..." : "Submit"}
                         </button>
                       </div>
                     </form>

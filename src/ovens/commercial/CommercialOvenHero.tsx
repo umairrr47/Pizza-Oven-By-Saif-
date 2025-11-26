@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import InstallProcessSection from "./InstallProcessSection";
+import { sendEmail } from "../../lib/emailService"; // <-- added
 
 // Register GSAP ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -153,15 +154,80 @@ const CommercialOvenHero: React.FC<{
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const resetForm = () => setForm({ name: "", mobile: "", email: "", message: "" });
+
+  // NEW: submit handler that calls sendEmail (matches SaifFaq keys)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 2500);
+    setStatus(null);
+    setSending(true);
+
+    // Build payload using same template variable names as other components
+    const payload = {
+      full_name: form.name || "",
+      phone_number: form.mobile || "",
+      email_address: form.email || "",
+      message: form.message || "",
+      company: "", // no company input in this form — left blank
+      page_link: typeof window !== "undefined" ? window.location.href : "",
+      source: "CommercialOvenHero",
+      full_summary: JSON.stringify({
+        name: form.name,
+        mobile: form.mobile,
+        email: form.email,
+        message: form.message,
+      }),
+    };
+
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.debug("[CommercialOvenHero] sending payload:", payload);
+    }
+
+    try {
+      const result = await sendEmail(payload);
+      if (result.ok) {
+        setSubmitted(true);
+        setStatus("Thanks — we received your enquiry.");
+        resetForm();
+        setTimeout(() => setSubmitted(false), 2500);
+      } else {
+        // extract meaningful message if available
+        let errMsg = "There was a problem sending your enquiry. Please try again.";
+        const err = (result as any).error;
+        if (err) {
+          if (err.status || err.statusText) {
+            errMsg = `Error: ${err.status || ""} ${err.statusText || ""}`.trim();
+          } else if (err.text) {
+            errMsg = String(err.text).slice(0, 200);
+          } else if (err.message) {
+            errMsg = String(err.message);
+          }
+        }
+        setStatus(errMsg);
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console
+          console.error("[CommercialOvenHero] send failed detail:", result.error);
+        }
+      }
+    } catch (err) {
+      setStatus("Unexpected error. Please try again.");
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.error("[CommercialOvenHero] unexpected error:", err);
+      }
+    } finally {
+      setSending(false);
+      // clear status after a short delay
+      setTimeout(() => setStatus(null), 4500);
+    }
   };
 
   return (
@@ -398,13 +464,17 @@ const CommercialOvenHero: React.FC<{
                         />
                       </div>
 
+                      {/* status message */}
+                      {status && <p className="text-sm text-gray-200" aria-live="polite">{status}</p>}
+
                       <div className="pt-4">
                         <motion.button
                           type="submit"
                           whileTap={{ scale: 0.98 }}
                           className="w-full rounded-full py-3 text-[15px] font-poppins font-light tracking-[0.05em] bg-gradient-to-b from-[#e30715] to-[#e30715] hover:from-[#ff1a23] hover:to-[#e30715] transition text-white shadow-md"
+                          disabled={sending}
                         >
-                          {submitted ? "Submitted" : "Submit"}
+                          {sending ? "Sending..." : submitted ? "Submitted" : "Submit"}
                         </motion.button>
                       </div>
                     </form>

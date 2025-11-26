@@ -38,7 +38,6 @@ export default function ContactHome() {
       </div>
     </section>
     <InstallProcess />
-    
     <ContactOvensShowcase />
     </>
     

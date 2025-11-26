@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import InstallProcessSection from "../commercial/InstallProcessSection";
+import { sendEmail } from "../../lib/emailService"; // <-- adjust path if needed
 
 // Register GSAP ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -154,14 +155,81 @@ const PortableOvenHero: React.FC<{
   });
   const [submitted, setSubmitted] = useState(false);
 
+  // EmailJS send state & status
+  const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const resetForm = () => setForm({ name: "", mobile: "", email: "", message: "" });
+
+  // ---- UPDATED: sendEmail payload uses same template keys as other forms ----
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 2500);
+    setStatus(null);
+    setSending(true);
+
+    const payload = {
+      full_name: form.name || "",
+      phone_number: form.mobile || "",
+      email_address: form.email || "",
+      message: form.message || "",
+      selected_product: "", // no selected product here
+      company: "", // no company input in this form — left blank
+      page_link: typeof window !== "undefined" ? window.location.href : "",
+      source: "HeroCarouselSection_Portable",
+      full_summary: JSON.stringify(
+        {
+          name: form.name,
+          mobile: form.mobile,
+          email: form.email,
+          message: form.message,
+        },
+        null,
+        2
+      ),
+    };
+
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.debug("[PortableOvenHero] sending payload:", payload);
+    }
+
+    try {
+      const res = await sendEmail(payload);
+      if (res.ok) {
+        setSubmitted(true);
+        setStatus("Thanks — we received your enquiry.");
+        resetForm();
+        setTimeout(() => setSubmitted(false), 2500);
+      } else {
+        // try to extract useful message from error object
+        let errMsg = "Failed to send. Please try again.";
+        const err = (res as any).error;
+        if (err) {
+          if (err.status || err.statusText) {
+            errMsg = `Error: ${err.status || ""} ${err.statusText || ""}`.trim();
+          } else if (err.text) {
+            errMsg = String(err.text).slice(0, 200);
+          } else if (err.message) {
+            errMsg = String(err.message);
+          }
+        }
+        setStatus(errMsg);
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console
+          console.error("[PortableOvenHero] send failed detail:", res.error);
+        }
+      }
+    } catch (err) {
+      console.error("Unexpected error sending email:", err);
+      setStatus("Unexpected error. Please try again.");
+    } finally {
+      setSending(false);
+      setTimeout(() => setStatus(null), 4500);
+    }
   };
 
   return (
@@ -396,10 +464,13 @@ const PortableOvenHero: React.FC<{
                           type="submit"
                           whileTap={{ scale: 0.98 }}
                           className="w-full rounded-full py-3 text-[15px] font-poppins font-light tracking-[0.05em] bg-gradient-to-b from-[#e30715] to-[#e30715] hover:from-[#ff1a23] hover:to-[#e30715] transition text-white shadow-md"
+                          disabled={sending}
                         >
-                          {submitted ? "Submitted" : "Submit"}
+                          {sending ? "Sending..." : submitted ? "Submitted" : "Submit"}
                         </motion.button>
                       </div>
+
+                      {status && <p className="text-sm text-gray-300 mt-2">{status}</p>}
                     </form>
                   </div>
                 </div>

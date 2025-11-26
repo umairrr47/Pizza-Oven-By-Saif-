@@ -1,10 +1,6 @@
 // src/pages/Home.tsx
 import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Award, Users, Clock, CheckCircle } from "lucide-react";
-import { products, Product } from "../data/products";
-import QuickViewModal from "../components/UI/QuickViewModal";
 import OvensShowcase, { OvenItem } from "./OvensShowcase";
 import ProjectsInIndia from "./ProjectsInIndia";
 import Founder from "./Founder"

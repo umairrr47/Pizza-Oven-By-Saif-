@@ -260,10 +260,11 @@
 
 
 
-// src/sections/CommercialCostSection.tsx
-import React, { useEffect, useRef } from "react";
+/// src/sections/CommercialAbout.tsx
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { sendEmail, EmailPayload } from "../../lib/emailService"; // adjust path if needed
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -277,6 +278,11 @@ export default function CommercialAbout({ className = "" }: Props) {
   const featuresUlRef = useRef<HTMLUListElement | null>(null);
   const ovenTypesRef = useRef<HTMLDivElement | null>(null);
   const formBoxRef = useRef<HTMLDivElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  // email/send state
+  const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (!rootRef.current) return;
@@ -306,7 +312,7 @@ export default function CommercialAbout({ className = "" }: Props) {
       // FEATURES LIST ITEMS - staggered reveal with blur -> sharp
       if (featuresUlRef.current) {
         const listItems = gsap.utils.toArray(featuresUlRef.current.children);
-        listItems.forEach((el: any, idx: number) => {
+        listItems.forEach((el: any) => {
           gsap.fromTo(
             el,
             { x: 40, opacity: 0, filter: "blur(3px)" },
@@ -377,6 +383,60 @@ export default function CommercialAbout({ className = "" }: Props) {
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, []);
+
+  // form submit handler using your emailService.sendEmail
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    setStatus(null);
+    setSending(true);
+
+    try {
+      const fd = new FormData(e.currentTarget);
+
+      // Build payload with explicit keys (match these with your EmailJS template variables)
+      const payload: EmailPayload = {
+        // Keep keys consistent with your EmailJS template (example names)
+        full_name: (fd.get("full-name") as FormDataEntryValue | null)?.toString() ?? "",
+        phone_number: (fd.get("phone-number") as FormDataEntryValue | null)?.toString() ?? "",
+        email_address: (fd.get("email-address") as FormDataEntryValue | null)?.toString() ?? "",
+        message: (fd.get("message") as FormDataEntryValue | null)?.toString() ?? "",
+        company: (fd.get("company") as FormDataEntryValue | null)?.toString() ?? "",
+        page_link:
+          (fd.get("page-link") as FormDataEntryValue | null)?.toString() ??
+          (typeof window !== "undefined" ? window.location.href : ""),
+        source: "CommercialAbout",
+        full_summary: JSON.stringify(Object.fromEntries(fd as any)),
+      };
+
+      // DEV debug logs (won't run in production)
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.debug("[CommercialAbout] send payload:", payload);
+      }
+
+      const result = await sendEmail(payload);
+
+      if (result.ok) {
+        setStatus("Thanks — we received your enquiry.");
+        // reset form safely (use formRef if present, otherwise event target)
+        if (formRef.current) formRef.current.reset();
+        else e.currentTarget.reset();
+      } else {
+        // detailed logging to help debug (viewable in console)
+        // eslint-disable-next-line no-console
+        console.error("EmailJS send failed:", result.error);
+        setStatus("There was a problem sending your enquiry. Please try again.");
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("Unexpected error sending email:", err);
+      setStatus("Unexpected error. Please try again.");
+    } finally {
+      setSending(false);
+      // clear status after a while (optional)
+      setTimeout(() => setStatus(null), 5000);
+    }
+  };
 
   return (
     <section ref={rootRef} className={`commercial-about-section commercial-cost-section bg-white ${className}`}>
@@ -453,14 +513,20 @@ export default function CommercialAbout({ className = "" }: Props) {
               </div>
             </div>
 
-            {/* RIGHT: sticky enquiry card - approx 25% width on lg */}
+             {/* RIGHT: sticky enquiry card - approx 25% width on lg */}
             <div className="w-full lg:w-[32%] mt-8 lg:mt-0">
               <div className="relative">
                 <div ref={formBoxRef} className="form-box dark-bg-form sticky top-8">
                   <div className="bg-[#292929] border border-gray-800 rounded-xl p-6 shadow-lg space-y-4">
                     <h5 className="text-[clamp(20px,2vw,28px)] font-normal text-gray-100 tracking-[0.025em] mb-2">We’re Here to Help</h5>
 
-                    <form action="#" method="post" className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+                    <form
+                      ref={formRef}
+                      action="#"
+                      method="post"
+                      className="space-y-3"
+                      onSubmit={handleSubmit}
+                    >
                       <div>
                         <input
                           name="full-name"
@@ -502,9 +568,15 @@ export default function CommercialAbout({ className = "" }: Props) {
                       <input type="hidden" name="company" />
                       <input type="hidden" name="page-link" />
 
+                      {status && <p className="text-sm text-gray-200">{status}</p>}
+
                       <div className="pt-2">
-                        <button type="submit" className="w-full py-3 rounded-full bg-[#e30715] text-white font-medium">
-                          Submit
+                        <button
+                          type="submit"
+                          disabled={sending}
+                          className="w-full py-3 rounded-full bg-[#e30715] text-white font-medium disabled:opacity-60"
+                        >
+                          {sending ? "Sending..." : "Submit"}
                         </button>
                       </div>
                     </form>
@@ -513,10 +585,10 @@ export default function CommercialAbout({ className = "" }: Props) {
               </div>
             </div>
 
+
           </div>
         </div>
       </div>
     </section>
   );
 }
-

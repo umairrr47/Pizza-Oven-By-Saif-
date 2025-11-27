@@ -16,7 +16,7 @@ import PortableOvens from "./ovens/portable/PortableOvens";
 import ResidentialOvens from "./ovens/residential/ResidentialOvens";
 import AboutUs from "./AboutUs/AboutUs";
 import OvensShowcase from "./pages/OvensShowcase";
-import ContactHome from "./ContactUs/ContactHome";
+import ContactHome from "./Contact Us/ContactHome";
 
 
 const App: React.FC = () => {

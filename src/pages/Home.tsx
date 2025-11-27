@@ -62,8 +62,8 @@ const useCountUpOnView = (
 
     const format = (v: number) => `${Math.floor(v)}${suffix}`;
     const prefersReduced =
-      typeof window !== "" &&
-      window.matchMedia &&
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const step = (ts: number) => {

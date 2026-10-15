@@ -1,4 +1,4 @@
-import Commercial from "../assets/commercial.webp"
+import Commercial from "../assets/commercial.png"
 import Italian from "../assets/Italian.jpeg"
 import Roof from "../assets/rooftop.webp"
 import Homeoven from "../assets/homeoven.jpeg"

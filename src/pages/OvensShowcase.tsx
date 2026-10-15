@@ -581,11 +581,7 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger);
-
-// Local assets
 import Oven1 from "../assets/residential.png";
 import Oven2 from "../assets/ovens/OvenShow1.png";
 import Oven3 from "../assets/ovens/OvenShow2.png";
@@ -636,54 +632,34 @@ const OvensShowcase: React.FC<Props> = ({
   headline = "Ovens range to choose from",
   subcopy = "At The Pizza Ovens, we specialize in crafting high-performance ovens engineered for excellence — delivering authentic Neapolitan pizzas in just 60–120 seconds. Our extensive range of models is designed to meet diverse needs, offering various capacities, outputs, and features to suit both home chefs and professional kitchens alike.",
   items = FALLBACK_ITEMS,
-  autoPlayMs = 4500,
+  autoPlayMs = 4000,
   onExplore,
 }) => {
   const navigate = useNavigate();
-
   const safeItems = items?.length ? items : FALLBACK_ITEMS;
-  const [i, setI] = useState(0);
-  const cur = safeItems[Math.min(i, safeItems.length - 1)];
+  const [index, setIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const rootRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const imgWrapRef = useRef<HTMLDivElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
+  const rootRef = useRef<HTMLElement>(null);
+  const imageWrapRef = useRef<HTMLDivElement>(null);
   const captionRef = useRef<HTMLDivElement>(null);
-  const outlineRef = useRef<HTMLDivElement>(null);
-  const mobileOutlineRef = useRef<HTMLDivElement>(null);
-  const liveRef = useRef<HTMLDivElement>(null);
+  const pointerStartX = useRef<number | null>(null);
 
-  const prefersReducedMotion = useMemo(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-    []
-  );
+  const currentIndex = index % safeItems.length;
+  const current = safeItems[currentIndex];
 
-  const [paused, setPaused] = useState(false);
-
-  const pointerDownX = useRef<number | null>(null);
-  const pointerActive = useRef(false);
-
-  const [headMain, headLast] = useMemo(() => {
-    const parts = headline.trim().split(" ");
-    if (parts.length <= 1) return [headline, ""];
-    const last = parts.pop() as string;
-    return [parts.join(" "), last];
-  }, [headline]);
-
-  // Entrance animation
+  // Keep the original entrance animation for the heading and supporting copy.
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    const context = gsap.context(() => {
       gsap.from(".ov-head", {
         y: 30,
         opacity: 0,
         duration: 0.7,
         ease: "power3.out",
       });
-
       gsap.from(".ov-copy", {
         y: 20,
         opacity: 0,
@@ -691,237 +667,107 @@ const OvensShowcase: React.FC<Props> = ({
         delay: 0.1,
         ease: "power3.out",
       });
-    }, rootRef);
+    }, root);
 
-    return () => ctx.revert();
+    return () => context.revert();
   }, []);
 
-  // Smooth slide transition
-  const animateSwap = useCallback(
-    (dir: 1 | -1) => {
-      if (prefersReducedMotion) return;
+  const [headMain, headLast] = useMemo(() => {
+    const words = headline.trim().split(/\s+/);
+    if (words.length < 2) return [headline, ""];
+    const last = words.pop() ?? "";
+    return [words.join(" "), last];
+  }, [headline]);
 
-      const imgWrap = imgWrapRef.current;
-      const caption = captionRef.current;
+  const animateChange = useCallback((direction: 1 | -1) => {
+    const imageWrap = imageWrapRef.current;
+    const caption = captionRef.current;
+    if (!imageWrap || !caption) return;
 
-      if (!imgWrap || !caption) return;
+    gsap.killTweensOf([imageWrap, caption]);
+    setIsTransitioning(true);
 
-      // Stop overlapping transitions
-      gsap.killTweensOf([imgWrap, caption]);
-
-      const tl = gsap.timeline({
-        defaults: {
-          ease: "power2.inOut",
-        },
-      });
-
-      tl.to([imgWrap, caption], {
+    gsap.timeline({
+      defaults: { ease: "power2.inOut" },
+      onComplete: () => setIsTransitioning(false),
+    })
+      .to([imageWrap, caption], {
         opacity: 0,
-        y: 10 * dir,
-        duration: 0.35,
-        stagger: 0.04,
+        y: 12 * direction,
+        duration: 0.22,
+        stagger: 0.025,
       })
-        .set([imgWrap, caption], {
-          y: -10 * dir,
-        })
-        .to([imgWrap, caption], {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          stagger: 0.06,
-          ease: "power3.out",
-        });
+      .set([imageWrap, caption], { y: -10 * direction })
+      .to([imageWrap, caption], {
+        opacity: 1,
+        y: 0,
+        duration: 0.38,
+        stagger: 0.035,
+        ease: "power3.out",
+      });
+  }, []);
+
+  const goTo = useCallback(
+    (targetIndex: number, direction?: 1 | -1) => {
+      if (safeItems.length <= 1) return;
+      const normalized = (targetIndex + safeItems.length) % safeItems.length;
+      if (normalized === currentIndex) return;
+      animateChange(direction ?? (normalized > currentIndex ? 1 : -1));
+      setIndex(normalized);
     },
-    [prefersReducedMotion]
+    [animateChange, currentIndex, safeItems.length],
   );
 
   const next = useCallback(() => {
-    if (!safeItems.length) return;
+    goTo(currentIndex + 1, 1);
+  }, [currentIndex, goTo]);
 
-    animateSwap(1);
-    setI((p) => (p + 1) % safeItems.length);
-  }, [animateSwap, safeItems.length]);
+  const previous = useCallback(() => {
+    goTo(currentIndex - 1, -1);
+  }, [currentIndex, goTo]);
 
-  const prev = useCallback(() => {
-    if (!safeItems.length) return;
-
-    animateSwap(-1);
-    setI((p) => (p - 1 + safeItems.length) % safeItems.length);
-  }, [animateSwap, safeItems.length]);
-
-  // Autoplay
+  // Autoplay always runs, including while the pointer is over the carousel.
+  // Reduced-motion preferences affect animation only; they must not disable slide changes.
   useEffect(() => {
-    if (
-      prefersReducedMotion ||
-      !autoPlayMs ||
-      !safeItems.length ||
-      paused
-    ) {
-      return;
-    }
+    if (autoPlayMs === false || autoPlayMs <= 0 || safeItems.length <= 1) return;
 
-    const id = setInterval(next, autoPlayMs);
+    const timer = window.setTimeout(() => {
+      next();
+    }, autoPlayMs);
 
-    return () => clearInterval(id);
-  }, [next, autoPlayMs, safeItems.length, paused, prefersReducedMotion]);
+    return () => window.clearTimeout(timer);
+  }, [autoPlayMs, currentIndex, safeItems.length, next]);
 
-  // Update outline text
-  useLayoutEffect(() => {
-    const el = outlineRef.current;
-    const mobileEl = mobileOutlineRef.current;
-    const live = liveRef.current;
-
-    if (live) {
-      live.textContent = `${cur?.indexLabel ?? ""} – ${cur?.title ?? ""}`;
-    }
-
-    if (prefersReducedMotion) {
-      if (el) el.textContent = cur?.title?.toUpperCase?.() ?? "";
-      if (mobileEl) mobileEl.textContent = cur?.title?.toUpperCase?.() ?? "";
-      return;
-    }
-
-    if (el) {
-      gsap.to(el, {
-        opacity: 0,
-        duration: 0.2,
-        ease: "power2.out",
-      });
-
-      const t = setTimeout(() => {
-        el.textContent = cur?.title?.toUpperCase?.() ?? "";
-
-        gsap.to(el, {
-          opacity: 1,
-          duration: 0.35,
-          ease: "power2.out",
-        });
-      }, 200);
-
-      return () => clearTimeout(t);
-    }
-
-    if (mobileEl) {
-      gsap.to(mobileEl, {
-        opacity: 0,
-        duration: 0.2,
-        ease: "power2.out",
-      });
-
-      const t = setTimeout(() => {
-        mobileEl.textContent = cur?.title?.toUpperCase?.() ?? "";
-
-        gsap.to(mobileEl, {
-          opacity: 1,
-          duration: 0.35,
-          ease: "power2.out",
-        });
-      }, 200);
-
-      return () => clearTimeout(t);
-    }
-  }, [cur?.title, cur?.indexLabel, prefersReducedMotion]);
-
-  // Keyboard navigation
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") next();
-      if (e.key === "ArrowLeft") prev();
-    };
-
-    window.addEventListener("keydown", handler);
-
-    return () => window.removeEventListener("keydown", handler);
-  }, [next, prev]);
-
-  // Swipe gestures
-  useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-
-    const onPointerDown = (e: PointerEvent) => {
-      pointerActive.current = true;
-      pointerDownX.current = e.clientX;
-    };
-
-    const onPointerMove = (e: PointerEvent) => {
-      if (!pointerActive.current || pointerDownX.current == null) return;
-
-      const dx = e.clientX - pointerDownX.current;
-
-      if (Math.abs(dx) > 48) {
-        pointerActive.current = false;
-        pointerDownX.current = null;
-
-        if (dx < 0) next();
-        else prev();
-      }
-    };
-
-    const onPointerUp = () => {
-      pointerActive.current = false;
-      pointerDownX.current = null;
-    };
-
-    stage.addEventListener("pointerdown", onPointerDown);
-    stage.addEventListener("pointermove", onPointerMove);
-    stage.addEventListener("pointerup", onPointerUp);
-    stage.addEventListener("pointercancel", onPointerUp);
-    stage.addEventListener("pointerleave", onPointerUp);
-
     return () => {
-      stage.removeEventListener("pointerdown", onPointerDown);
-      stage.removeEventListener("pointermove", onPointerMove);
-      stage.removeEventListener("pointerup", onPointerUp);
-      stage.removeEventListener("pointercancel", onPointerUp);
-      stage.removeEventListener("pointerleave", onPointerUp);
+      gsap.killTweensOf([imageWrapRef.current, captionRef.current]);
     };
-  }, [next, prev]);
+  }, []);
 
-  const aria = useMemo(
-    () => ({
-      prev:
-        safeItems.length > 1
-          ? `Previous: ${
-              safeItems[(i - 1 + safeItems.length) % safeItems.length].title
-            }`
-          : "Previous",
-      next:
-        safeItems.length > 1
-          ? `Next: ${safeItems[(i + 1) % safeItems.length].title}`
-          : "Next",
-    }),
-    [i, safeItems]
-  );
+  useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      if (!rootRef.current?.contains(document.activeElement)) return;
+      if (event.key === "ArrowRight") next();
+      if (event.key === "ArrowLeft") previous();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [next, previous]);
 
-  if (!cur) return null;
+  const makeSlug = (title: string) =>
+    title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-  const makeSlug = (t: string) =>
-    t
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
-  const handleExplore = (item: OvenItem, index: number) => {
-    onExplore?.(item, index);
-
-    const dest = item.link
-      ? item.link
-      : `/ovens/${makeSlug(item.title || `item-${index + 1}`)}`;
-
-    const isAbsolute = /^https?:\/\//i.test(dest);
-
-    if (isAbsolute) {
-      window.location.href = dest;
-      return;
-    }
-
-    try {
-      navigate(dest);
-    } catch {
-      window.location.href = dest;
+  const handleExplore = () => {
+    onExplore?.(current, currentIndex);
+    const destination = current.link ?? `/ovens/${makeSlug(current.title)}`;
+    if (/^https?:\/\//i.test(destination)) {
+      window.location.href = destination;
+    } else {
+      navigate(destination);
     }
   };
+
+  if (!current) return null;
 
   return (
     <section
@@ -929,35 +775,24 @@ const OvensShowcase: React.FC<Props> = ({
       className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-[#0a0b0c] py-8 text-white sm:py-12 md:py-16 lg:py-20"
       aria-label="Ovens showcase carousel"
       aria-roledescription="carousel"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
     >
-      <div
-        ref={liveRef}
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      />
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {current.indexLabel} – {current.title}
+      </div>
 
-      {/* Background outline text - Desktop */}
       <div
-        ref={outlineRef}
-        className="pointer-events-none absolute inset-0 z-0 hidden select-none items-start justify-center overflow-hidden whitespace-nowrap text-[clamp(28px,7.5vw,96px)] font-extrabold tracking-tighter md:flex sm:items-center"
+        className="pointer-events-none absolute inset-0 z-0 hidden select-none items-center justify-center overflow-hidden whitespace-nowrap text-[clamp(28px,7.5vw,96px)] font-extrabold tracking-tighter md:flex"
         style={{
           WebkitTextStroke: "1.2px rgba(255,255,255,0.20)",
           color: "rgba(255,255,255,0.035)",
-          textTransform: "uppercase",
           letterSpacing: "-0.05em",
         }}
         aria-hidden="true"
       >
-        {cur.title?.toUpperCase?.() || ""}
+        {current.title.toUpperCase()}
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-12 xl:px-16">
-        {/* Headline and subcopy */}
         <div className="mb-8 grid grid-cols-1 items-start gap-6 md:mb-12 md:gap-8 lg:mb-16 lg:grid-cols-2 lg:gap-12 xl:gap-16">
           <div className="space-y-4 text-center md:space-y-6 lg:text-left">
             <h2 className="ov-head text-[clamp(30px,5.5vw,54px)] font-normal leading-[1.08] tracking-[-0.025em]">
@@ -965,207 +800,91 @@ const OvensShowcase: React.FC<Props> = ({
               {headLast && (
                 <>
                   <br />
-                  <span className="mt-1 block text-[clamp(32px,6.5vw,66px)]">
-                    {headLast}
-                  </span>
+                  <span className="mt-1 block text-[clamp(32px,6.5vw,66px)]">{headLast}</span>
                 </>
               )}
             </h2>
           </div>
-
           <div className="lg:pl-4">
-            <p className="ov-copy mx-auto max-w-2xl text-center text-[16px] leading-[1.6] tracking-[0.02em] text-[#BCBCBC] lg:mx-0 lg:text-left md:text-[17px]">
+            <p className="ov-copy mx-auto max-w-2xl text-center text-[16px] leading-[1.6] tracking-[0.02em] text-[#BCBCBC] md:text-[17px] lg:mx-0 lg:text-left">
               {subcopy}
             </p>
           </div>
         </div>
 
-        {/* Image stage */}
         <div className="relative mt-6 md:mt-10 lg:mt-12">
           <div
-            className="absolute inset-0 top-1/4 -z-10 h-[50%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.04)_0%,transparent_65%)] blur-[80px]"
+            className="absolute inset-x-0 top-1/4 -z-10 mx-auto h-[50%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.04)_0%,transparent_65%)] blur-[80px]"
             aria-hidden="true"
           />
 
-          {/* Background outline text - Mobile */}
-          <div
-            ref={mobileOutlineRef}
-            className="mb-4 select-none text-center text-[clamp(28px,7.5vw,96px)] font-extrabold tracking-tighter md:hidden"
-            style={{
-              WebkitTextStroke: "1.2px rgba(255,255,255,0.20)",
-              color: "rgba(255,255,255,0.035)",
-              textTransform: "uppercase",
-              letterSpacing: "-0.05em",
-            }}
-            aria-hidden="true"
-          >
-            {cur.title?.toUpperCase?.() || ""}
+          <div className="mb-4 select-none text-center text-[clamp(28px,7.5vw,96px)] font-extrabold tracking-tighter md:hidden" style={{ WebkitTextStroke: "1.2px rgba(255,255,255,0.20)", color: "rgba(255,255,255,0.035)" }} aria-hidden="true">
+            {current.title.toUpperCase()}
           </div>
 
           <div
-            ref={stageRef}
-            className="mx-auto grid w-full place-items-center px-2 xs:px-4 sm:px-8 md:px-12 lg:px-20"
+            className="mx-auto grid w-full touch-pan-y place-items-center px-8 sm:px-12 md:px-16 lg:px-20"
+            onPointerDown={(event) => { pointerStartX.current = event.clientX; }}
+            onPointerUp={(event) => {
+              if (pointerStartX.current === null) return;
+              const delta = event.clientX - pointerStartX.current;
+              if (Math.abs(delta) > 50) delta < 0 ? next() : previous();
+              pointerStartX.current = null;
+            }}
+            onPointerCancel={() => { pointerStartX.current = null; }}
           >
-            <div
-              ref={imgWrapRef}
-              className="grid h-[260px] w-[280px] place-items-center will-change-transform will-change-opacity transition-all duration-300 sm:h-[380px] sm:w-[400px] md:h-[500px] md:w-[550px] lg:h-[600px] lg:w-[650px] xl:h-[650px] xl:w-[720px]"
-              style={{ transformStyle: "preserve-3d" }}
-            >
+            <div ref={imageWrapRef} className="grid h-[260px] w-full max-w-[280px] place-items-center sm:h-[380px] sm:max-w-[400px] md:h-[500px] md:max-w-[550px] lg:h-[600px] lg:max-w-[650px] xl:h-[650px] xl:max-w-[720px]">
               <img
-                ref={imgRef}
-                key={cur.image}
-                src={cur.image}
-                alt={cur.title}
-                className="h-[200px] w-auto object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.7)] transition-all duration-300 sm:h-[280px] md:h-[380px] lg:h-[480px] xl:h-[550px]"
+                key={current.image}
+                src={current.image}
+                alt={current.title}
+                className="h-[200px] w-auto max-w-full object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.7)] sm:h-[280px] md:h-[380px] lg:h-[480px] xl:h-[550px]"
                 loading="eager"
                 decoding="async"
               />
             </div>
           </div>
 
-          {/* Previous button */}
-          <button
-            aria-label={aria.prev}
-            onClick={prev}
-            className="group absolute left-0 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] backdrop-blur-sm transition-all duration-200 hover:bg-white/[0.14] focus:outline-none focus:ring-2 focus:ring-white/30 sm:left-2 sm:h-11 sm:w-11 md:left-4 md:h-12 md:w-12 lg:left-6"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              className="transition-transform group-hover:-translate-x-0.5"
-              aria-hidden="true"
-            >
-              <path
-                d="M15 19l-7-7 7-7"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          <button type="button" aria-label="Previous oven" onClick={previous} className="group absolute left-0 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] backdrop-blur-sm transition hover:bg-white/[0.14] focus:outline-none focus:ring-2 focus:ring-white/30 sm:left-2 sm:h-11 sm:w-11 md:left-4 md:h-12 md:w-12 lg:left-6">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="transition-transform group-hover:-translate-x-0.5" aria-hidden="true"><path d="M15 19l-7-7 7-7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
-
-          {/* Next button */}
-          <button
-            aria-label={aria.next}
-            onClick={next}
-            className="group absolute right-0 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] backdrop-blur-sm transition-all duration-200 hover:bg-white/[0.14] focus:outline-none focus:ring-2 focus:ring-white/30 sm:right-2 sm:h-11 sm:w-11 md:right-4 md:h-12 md:w-12 lg:right-6"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              className="transition-transform group-hover:translate-x-0.5"
-              aria-hidden="true"
-            >
-              <path
-                d="M9 5l7 7-7 7"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          <button type="button" aria-label="Next oven" onClick={next} className="group absolute right-0 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] backdrop-blur-sm transition hover:bg-white/[0.14] focus:outline-none focus:ring-2 focus:ring-white/30 sm:right-2 sm:h-11 sm:w-11 md:right-4 md:h-12 md:w-12 lg:right-6">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         </div>
 
-        {/* Caption */}
-        <div
-          ref={captionRef}
-          className="mt-8 flex flex-col gap-5 md:mt-10 md:gap-6 lg:mt-12"
-        >
+        <div ref={captionRef} className="mt-8 flex flex-col gap-5 md:mt-10 md:gap-6 lg:mt-12">
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center md:gap-5 lg:gap-6">
-            <span
-              className="mx-auto select-none text-[clamp(44px,7.5vw,92px)] font-extrabold leading-none sm:mx-0"
-              style={{
-                WebkitTextStroke: "1.5px rgba(255,255,255,0.12)",
-                color: "transparent",
-              }}
-              aria-hidden="true"
-            >
-              {cur.indexLabel}
-            </span>
-
+            <span className="mx-auto select-none text-[clamp(44px,7.5vw,92px)] font-extrabold leading-none sm:mx-0" style={{ WebkitTextStroke: "1.5px rgba(255,255,255,0.12)", color: "transparent" }} aria-hidden="true">{current.indexLabel}</span>
             <div className="min-w-0 flex-1 text-center sm:text-left">
-              <h3 className="mb-1 text-[clamp(22px,3.25vw,40px)] font-semibold leading-tight tracking-[-0.015em]">
-                {cur.title}
-              </h3>
-
-              <p
-                id="slide-blurb"
-                className="mx-auto max-w-3xl text-[16px] leading-[1.6] tracking-[0.02em] text-[#BCBCBC] sm:mx-0 md:text-[17px]"
-              >
-                {cur.blurb ||
-                  "Crafted to be sturdy and lightweight, ideal for events."}
-              </p>
+              <h3 className="mb-1 text-[clamp(22px,3.25vw,40px)] font-semibold leading-tight tracking-[-0.015em]">{current.title}</h3>
+              <p className="mx-auto max-w-3xl text-[16px] leading-[1.6] tracking-[0.02em] text-[#BCBCBC] sm:mx-0 md:text-[17px]">{current.blurb ?? "Crafted to be sturdy and lightweight, ideal for events."}</p>
             </div>
-
-            <button
-              type="button"
-              onClick={() => handleExplore(cur, i)}
-              aria-describedby="slide-blurb"
-              className="group mx-auto inline-flex items-center gap-2.5 whitespace-nowrap rounded-full bg-[#E20A17] px-5 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-[#ff1a2a] focus:outline-none focus:ring-2 focus:ring-red-400/50 sm:mx-0 sm:px-6 sm:py-3 sm:text-base"
-            >
+            <button type="button" onClick={handleExplore} className="group mx-auto inline-flex items-center gap-2.5 whitespace-nowrap rounded-full bg-[#E20A17] px-5 py-2.5 text-sm font-medium transition hover:bg-[#ff1a2a] focus:outline-none focus:ring-2 focus:ring-red-400/50 sm:mx-0 sm:px-6 sm:py-3 sm:text-base">
               <span>Explore</span>
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="transition-transform group-hover:translate-x-0.5"
-                aria-hidden="true"
-              >
-                <path
-                  d="M9 5l7 7-7 7"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           </div>
 
-          {/* Progress indicator */}
           <div className="relative mt-2 h-[2.5px] w-full overflow-hidden rounded-full bg-white/10">
-            <span
-              className="absolute left-0 top-0 h-full rounded-full bg-white/60 transition-[width] duration-300 ease-out"
-              style={{
-                width: `${((i + 1) / safeItems.length) * 100}%`,
-              }}
-              aria-hidden="true"
-            />
+            <span className="absolute left-0 top-0 h-full rounded-full bg-white/60 transition-[width] duration-300 ease-out" style={{ width: `${((currentIndex + 1) / safeItems.length) * 100}%` }} aria-hidden="true" />
           </div>
         </div>
 
-        {/* Pagination dots */}
-        <div
-          className="mt-8 flex items-center justify-center gap-2.5 sm:mt-10 md:mt-12"
-          role="tablist"
-          aria-label="Slides"
-        >
-          {safeItems.map((_, idx) => (
+        <div className="mt-8 flex items-center justify-center gap-2.5 sm:mt-10 md:mt-12" role="tablist" aria-label="Oven slides">
+          {safeItems.map((item, slideIndex) => (
             <button
-              key={idx}
+              key={`${item.title}-${slideIndex}`}
               type="button"
-              onClick={() => {
-                animateSwap(idx > i ? 1 : -1);
-                setI(idx);
-              }}
+              onClick={() => goTo(slideIndex)}
               role="tab"
-              aria-selected={idx === i}
-              aria-label={`Go to slide ${idx + 1}`}
-              className={`h-1.5 rounded-full transition-all duration-300 ease-out ${
-                idx === i
-                  ? "w-8 bg-white sm:w-9"
-                  : "w-2.5 bg-white/30 hover:bg-white/50 sm:w-3"
-              }`}
+              aria-selected={slideIndex === currentIndex}
+              aria-label={`Go to ${item.title}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ease-out ${slideIndex === currentIndex ? "w-8 bg-white sm:w-9" : "w-2.5 bg-white/30 hover:bg-white/50 sm:w-3"}`}
             />
           ))}
         </div>
+        {isTransitioning && <span className="sr-only">Changing oven slide</span>}
       </div>
     </section>
   );

@@ -35,11 +35,54 @@ export default function RotatingCookingSection() {
     if (!section) return;
 
     const ctx = gsap.context(() => {
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
+      
+const reduceMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+).matches;
 
-      if (reduceMotion) return;
+// Start the mechanical rotation independently of scroll animations.
+// Use section-scoped selectors so this component targets its own elements.
+const turntable = section.querySelector(".rc-turntable");
+const outerOrbit = section.querySelector(".rc-orbit-outer");
+const coreGlow = section.querySelector(".rc-core-glow");
+
+if (turntable) {
+  gsap.to(turntable, {
+    rotation: "+=360",
+    duration: 32,
+    ease: "none",
+    repeat: -1,
+    transformOrigin: "50% 50%",
+    force3D: true,
+  });
+}
+
+if (outerOrbit) {
+  gsap.to(outerOrbit, {
+    rotation: "+=360",
+    duration: 46,
+    ease: "none",
+    repeat: -1,
+    transformOrigin: "50% 50%",
+    force3D: true,
+  });
+}
+
+if (coreGlow) {
+  gsap.to(coreGlow, {
+    opacity: 0.55,
+    scale: 1.12,
+    duration: 2.6,
+    ease: "sine.inOut",
+    yoyo: true,
+    repeat: -1,
+  });
+}
+
+// Reduced-motion preference should skip the scroll-driven intro,
+// not prevent the mechanical rotation from starting.
+if (reduceMotion) return;
+
 
       // Reset elements to their initial animation states.
       gsap.set(".rc-eyebrow", { opacity: 0, y: 12 });

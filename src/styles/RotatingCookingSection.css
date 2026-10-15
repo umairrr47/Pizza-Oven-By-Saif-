@@ -849,3 +849,21 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+
+@media (max-width: 720px) {
+  .rc-visual,
+  .rc-machine {
+    perspective: 1000px;
+  }
+
+  .rc-turntable,
+  .rc-orbit-outer {
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+
+  .rc-core-glow {
+    will-change: transform, opacity;
+  }
+}

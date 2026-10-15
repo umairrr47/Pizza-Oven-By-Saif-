@@ -1,7 +1,20 @@
-import React, { useEffect, useMemo, useState } from "react";
+
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Star, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  X,
+  Star,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Product } from "../../data/products";
 
 interface Props {
@@ -10,185 +23,295 @@ interface Props {
   onClose: () => void;
 }
 
-const QuickViewModal: React.FC<Props> = ({ product, isOpen, onClose }) => {
+const QuickViewModal: React.FC<Props> = ({
+  product,
+  isOpen,
+  onClose,
+}) => {
   const [active, setActive] = useState(0);
 
   const images = useMemo(() => {
     if (!product) return [];
-    const list = [product.image, ...(product.gallery || [])].filter(Boolean);
-    return Array.from(new Set(list));
+    return Array.from(
+      new Set([product.image, ...(product.gallery || [])].filter(Boolean))
+    );
   }, [product]);
 
-  useEffect(() => setActive(0), [product?.id]);
+  const changeImage = useCallback(
+    (direction: number) => {
+      if (!images.length) return;
 
-  // Lock page scroll + keyboard navigation
+      setActive(
+        (current) =>
+          (current + direction + images.length) % images.length
+      );
+    },
+    [images.length]
+  );
+
+  useEffect(() => {
+    setActive(0);
+  }, [product?.id]);
+
   useEffect(() => {
     if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (!images.length) return;
-      if (e.key === "ArrowRight") setActive((i) => (i + 1) % images.length);
-      if (e.key === "ArrowLeft") setActive((i) => (i - 1 + images.length) % images.length);
-    };
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [isOpen, images.length, onClose]);
 
-  if (!isOpen || !product) return null;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "ArrowRight") changeImage(1);
+      if (event.key === "ArrowLeft") changeImage(-1);
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isOpen, onClose, changeImage]);
+
+  if (!isOpen || !product || typeof document === "undefined") {
+    return null;
+  }
+
+  const slug = product.slug || String(product.id);
+  const whatsappUrl = `https://wa.me/919899593526?text=${encodeURIComponent(
+    `Hello, I would like to enquire about ${product.name}.`
+  )}`;
 
   const panel = (
     <AnimatePresence>
-      {/* Backdrop */}
       <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm"
+        key="quick-view-backdrop"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[1000] bg-black/75 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      {/* Centering layer */}
       <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[1001] grid place-items-center p-3 sm:p-5"
+        key="quick-view-layer"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[1001] grid place-items-center p-0 sm:p-4"
         onClick={onClose}
       >
-        {/* Modal panel */}
         <motion.div
-          role="dialog" aria-modal="true"
-          initial={{ y: 28, scale: 0.985 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, scale: 0.985 }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="quick-view-title"
+          initial={{ y: 24, scale: 0.985 }}
+          animate={{ y: 0, scale: 1 }}
+          exit={{ y: 16, scale: 0.985 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          onClick={(e) => e.stopPropagation()}
-          className="
-            w-full max-w-6xl overflow-hidden
-            bg-white/95 backdrop-blur ring-1 ring-black/10 shadow-2xl
-            rounded-none md:rounded-2xl
-            max-h-[92vh] grid grid-cols-1 md:grid-cols-5
-          "
+          onClick={(event) => event.stopPropagation()}
+          className="relative grid max-h-[100dvh] w-full grid-cols-1 overflow-y-auto bg-[#111111] text-white shadow-2xl sm:max-h-[92vh] sm:max-w-6xl sm:overflow-hidden sm:rounded-2xl md:grid-cols-5"
         >
-          {/* Mobile sticky header */}
-          <div className="md:hidden sticky top-0 z-10 flex items-center justify-between bg-white/90 backdrop-blur px-4 py-3 border-b">
-            <div className="font-semibold line-clamp-1">{product.name}</div>
+          {/* Mobile header */}
+          <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-white/10 bg-[#111111]/95 px-4 py-3 backdrop-blur sm:hidden">
+            <h2 id="quick-view-title" className="line-clamp-1 text-sm font-semibold">
+              {product.name}
+            </h2>
             <button
+              type="button"
               onClick={onClose}
-              className="rounded-full bg-white/90 p-2 text-neutral-700 ring-1 ring-black/10 hover:bg-white"
-              aria-label="Close"
+              aria-label="Close quick view"
+              className="shrink-0 rounded-full border border-white/10 p-2 hover:bg-white/10"
             >
               <X size={18} />
             </button>
           </div>
 
-          {/* GALLERY */}
-          <div className="relative md:col-span-3">
-            <div className="relative aspect-[4/3] md:aspect-[5/4] max-h-[65vh] md:max-h-[92vh] overflow-hidden bg-neutral-100">
+          {/* Gallery */}
+          <div className="min-w-0 bg-[#171717] md:col-span-3">
+            <div className="relative flex aspect-[4/3] max-h-[55vh] items-center justify-center overflow-hidden sm:max-h-[70vh] md:aspect-[5/4] md:max-h-[92vh]">
+              <img
+                key={images[active]}
+                src={images[active]}
+                alt={`${product.name} product view ${active + 1}`}
+                className="h-full w-full object-contain p-3 sm:p-6"
+                onError={(event) => {
+                  console.error(
+                    `Quick view image failed to load for ${product.name}:`,
+                    event.currentTarget.src
+                  );
+                }}
+              />
+
               {images.length > 1 && (
                 <>
                   <button
-                    onClick={() => setActive((i) => (i - 1 + images.length) % images.length)}
-                    className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow ring-1 ring-black/10 hover:bg-white z-10"
+                    type="button"
+                    onClick={() => changeImage(-1)}
                     aria-label="Previous image"
+                    className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/65 hover:bg-orange-500 hover:text-black"
                   >
-                    <ChevronLeft />
+                    <ChevronLeft size={20} />
                   </button>
                   <button
-                    onClick={() => setActive((i) => (i + 1) % images.length)}
-                    className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full bg-white/95 shadow ring-1 ring-black/10 hover:bg-white z-10"
+                    type="button"
+                    onClick={() => changeImage(1)}
                     aria-label="Next image"
+                    className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-black/65 hover:bg-orange-500 hover:text-black"
                   >
-                    <ChevronRight />
+                    <ChevronRight size={20} />
                   </button>
                 </>
               )}
 
-              <motion.img
-                key={images[active]}
-                src={images[active]}
-                alt={product.name}
-                initial={{ opacity: 0.35, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.35 }}
-                className="h-full w-full object-cover"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+              <span className="absolute bottom-3 right-3 rounded-full bg-black/65 px-3 py-1 text-xs text-white/75">
+                {active + 1} / {images.length}
+              </span>
             </div>
 
             {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto p-3 pl-4 md:p-4 md:pl-6 bg-white">
-                {images.map((src, i) => (
+              <div className="flex gap-2 overflow-x-auto border-t border-white/10 p-3 sm:p-4">
+                {images.map((src, index) => (
                   <button
-                    key={i}
-                    onClick={() => setActive(i)}
-                    className={`relative h-16 w-20 overflow-hidden rounded-md ring-1 transition ${i === active ? "ring-amber-500" : "ring-black/10"}`}
+                    key={src}
+                    type="button"
+                    onClick={() => setActive(index)}
+                    aria-label={`View image ${index + 1}`}
+                    aria-pressed={index === active}
+                    className={`h-16 w-20 shrink-0 overflow-hidden rounded-lg border bg-[#222222] transition ${
+                      index === active
+                        ? "border-orange-400"
+                        : "border-white/10 hover:border-white/30"
+                    }`}
                   >
-                    <img src={src} alt="" className="h-full w-full object-cover" />
+                    <img
+                      src={src}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-contain p-1"
+                    />
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* DETAILS */}
-          <div className="relative md:col-span-2 p-4 md:p-6 bg-white/90 overflow-y-auto">
+          {/* Product details */}
+          <div className="relative min-w-0 overflow-y-auto p-5 sm:p-6 md:col-span-2 md:p-7">
             <button
+              type="button"
               onClick={onClose}
-              className="hidden md:inline-flex absolute right-3 top-3 rounded-full bg-white/90 p-2 text-neutral-700 ring-1 ring-black/10 hover:bg-white"
-              aria-label="Close"
+              aria-label="Close quick view"
+              className="absolute right-4 top-4 hidden rounded-full border border-white/10 p-2 text-white/70 hover:bg-white/10 sm:inline-flex"
             >
               <X size={18} />
             </button>
 
-            <h3 className="hidden md:block text-2xl font-semibold text-neutral-900 pr-10">{product.name}</h3>
-            <div className="mt-1 text-sm text-neutral-500">
-              {product.category} &middot; {product.fuelType} &middot; {product.size}
-            </div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-orange-400">
+              {product.category}
+            </p>
 
-            <div className="mt-3 flex items-center gap-2">
-              <div className="inline-flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    size={14}
-                    className={i < Math.round(product.rating || 0) ? "text-amber-400 fill-amber-400" : "text-neutral-300"}
-                  />
-                ))}
+            <h2
+              id="quick-view-title"
+              className="mt-3 pr-8 text-2xl font-semibold leading-tight tracking-tight sm:text-3xl"
+            >
+              {product.name}
+            </h2>
+
+            <p className="mt-3 text-sm text-white/45">
+              {product.fuelType} · {product.size}
+            </p>
+
+            {product.rating != null && (
+              <div className="mt-4 flex items-center gap-2">
+                <div className="flex items-center gap-0.5">
+                  {Array.from({ length: 5 }, (_, index) => (
+                    <Star
+                      key={index}
+                      size={14}
+                      className={
+                        index < Math.round(product.rating ?? 0)
+                          ? "fill-amber-400 text-amber-400"
+                          : "text-white/20"
+                      }
+                    />
+                  ))}
+                </div>
+                <span className="text-xs text-white/65">
+                  {product.rating.toFixed(1)}
+                </span>
+                {product.reviewsCount != null && (
+                  <span className="text-xs text-white/40">
+                    ({product.reviewsCount} reviews)
+                  </span>
+                )}
               </div>
-              {product.reviewsCount ? <span className="text-xs text-neutral-500">({product.reviewsCount})</span> : null}
+            )}
+
+            <div className="mt-5 border-y border-white/10 py-5">
+              <p className="text-[10px] uppercase tracking-widest text-white/40">
+                Product price
+              </p>
+              <div className="mt-1 flex flex-wrap items-baseline gap-3">
+                <span className="text-2xl font-semibold">{product.price}</span>
+                {product.mrp && (
+                  <span className="text-sm text-white/35 line-through">
+                    {product.mrp}
+                  </span>
+                )}
+              </div>
+              {product.stock && (
+                <p className="mt-2 text-xs text-white/50">
+                  Availability: {product.stock}
+                </p>
+              )}
             </div>
 
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-neutral-900 text-white px-3 py-1.5 text-sm">
-              {product.price}
-              {product.mrp && <span className="ml-1 text-white/70 line-through">{product.mrp}</span>}
-            </div>
+            <p className="mt-5 text-sm leading-7 text-white/60">
+              {product.description}
+            </p>
 
-            {product.features?.length ? (
-              <ul className="mt-5 grid grid-cols-1 gap-2 text-sm text-neutral-800">
-                {product.features.slice(0, 6).map((f, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="mt-1 inline-block h-1.5 w-1.5 rounded-full bg-amber-600" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
+            {product.features?.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-white/80">
+                  Key features
+                </h3>
+                <ul className="mt-3 space-y-3">
+                  {product.features.slice(0, 6).map((feature) => (
+                    <li key={feature} className="flex gap-3 text-sm text-white/70">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-orange-400" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-            <p className="mt-4 text-sm text-neutral-600 leading-relaxed">{product.description}</p>
-
-            {/* ✅ Buttons: mobile pe stack, sm+ pe 2-cols */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="mt-7 grid grid-cols-1 gap-3">
               <a
-                href="https://wa.me/919899593526"
+                href={whatsappUrl}
                 target="_blank"
-                className="inline-flex items-center justify-center rounded-lg bg-amber-600 px-4 py-2.5 text-white hover:bg-amber-700"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-xl bg-orange-500 px-4 py-3 text-sm font-semibold text-black transition hover:bg-orange-400"
               >
-                Get Custom Quote
+                Get a custom quote
               </a>
-              <a
-                href="/contact"
-                className="inline-flex items-center justify-center rounded-lg border border-neutral-300 px-4 py-2.5 text-neutral-800 hover:bg-neutral-50"
+
+              <Link
+                to={`/products/${slug}`}
+                onClick={onClose}
+                className="inline-flex items-center justify-center rounded-xl border border-white/15 px-4 py-3 text-sm font-medium text-white transition hover:border-orange-400/60 hover:text-orange-300"
               >
-                Talk to Expert <ArrowRight size={16} className="ml-2" />
-              </a>
+                View full details
+                <ArrowRight size={16} className="ml-2" />
+              </Link>
+
+              <Link
+                to="/contact"
+                onClick={onClose}
+                className="inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm text-white/55 transition hover:text-white"
+              >
+                Talk to an expert
+              </Link>
             </div>
           </div>
         </motion.div>

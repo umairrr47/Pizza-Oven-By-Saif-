@@ -1,14 +1,12 @@
 import React from "react";
 import CommercialOvenHero from "./PortableOvenHero";
 import AssistanceBanner from "../commercial/AssistanceBanner";
-import PortableBenefit from "./PortableBenefit";
 import PortableSpecs from "./PortableSpecs";
 import RevolvingOven from "../../pages/RevolvingOven";
 import PortableOvenDetails from "./PortableOvenDetails";
 import ReviewsSection from "../commercial/ReviewsSection";
-import PortableGallery from "./PortableGallery";
 import PortableAbout from "./PortableAbout";
-import AboutLink from "../commercial/AboutLink";
+
 
 
 const PortableOvens = () => {
@@ -17,14 +15,14 @@ const PortableOvens = () => {
       {/* Hero Section - Full width */}
       <CommercialOvenHero />
       <AssistanceBanner />
-      <PortableBenefit />
+      {/* <PortableBenefit /> */}
       <PortableSpecs />
       <RevolvingOven />
       <PortableOvenDetails />
       <ReviewsSection />
-      <PortableGallery />
+      {/* <PortableGallery /> */}
       <PortableAbout />
-      <AboutLink />
+      {/* <AboutLink /> */}
     </div>
   );
 };

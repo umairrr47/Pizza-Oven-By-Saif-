@@ -21,10 +21,10 @@ const BrandsLoop: React.FC = () => {
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkw_4dA-qmqGWGx4DSghIdVJzMCUTol2vX1Q&s",
   ];
 
-  const HEIGHT_PX = 80;
-  const HEIGHT_PX_SM = 60;
+  const HEIGHT_PX = 40;
+  const HEIGHT_PX_SM = 20;
   const GAP_REM = 3;
-  const GAP_REM_SM = 2;
+  const GAP_REM_SM = 3;
   const SPEED_SEC = 10;
 
   // triple-track for seamless looping
@@ -66,13 +66,13 @@ const BrandsLoop: React.FC = () => {
   }, []);
 
   return (
-    <section className="relative w-full py-10 sm:py-12 overflow-hidden bg-white">
+    <section className="relative w-full py-0 sm:py-0 overflow-hidden bg-white">
       <div className="relative w-full rounded-3xl bg-white/90">
         <div className="pointer-events-none absolute inset-0 rounded-3xl [background:radial-gradient(1200px_400px_at_10%_-20%,rgba(255,255,255,0.12),transparent_60%)]" />
         <div className="pointer-events-none absolute left-0 top-0 h-full w-24 sm:w-32 bg-gradient-to-r from-white to-transparent z-20" />
         <div className="pointer-events-none absolute right-0 top-0 h-full w-24 sm:w-32 bg-gradient-to-l from-white to-transparent z-20" />
 
-        <div className="relative overflow-hidden py-3">
+        <div className="relative overflow-hidden py-1">
           {/* marquee track */}
           <div
             ref={marqueeRef}

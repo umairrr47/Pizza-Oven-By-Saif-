@@ -479,8 +479,6 @@ const ResidentialOvenHero: React.FC<{
           </div>
         </div>
       </section>
-
-      <InstallProcessSection />
     </>
   );
 };

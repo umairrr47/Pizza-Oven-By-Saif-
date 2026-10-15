@@ -569,6 +569,8 @@
 
 
 
+
+
 import React, {
   useCallback,
   useEffect,
@@ -580,12 +582,13 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+
 gsap.registerPlugin(ScrollTrigger);
 
-// Local assets (same as your file)
+// Local assets
 import Oven1 from "../assets/residential.png";
-import Oven2 from "../assets/portable.png";
-import Oven3 from "../assets/commercial.png";
+import Oven2 from "../assets/ovens/OvenShow1.png";
+import Oven3 from "../assets/ovens/OvenShow2.png";
 
 export type OvenItem = {
   image: string;
@@ -629,24 +632,14 @@ const FALLBACK_ITEMS: OvenItem[] = [
   },
 ];
 
-
 const OvensShowcase: React.FC<Props> = ({
   headline = "Ovens range to choose from",
   subcopy = "At The Pizza Ovens, we specialize in crafting high-performance ovens engineered for excellence — delivering authentic Neapolitan pizzas in just 60–120 seconds. Our extensive range of models is designed to meet diverse needs, offering various capacities, outputs, and features to suit both home chefs and professional kitchens alike.",
   items = FALLBACK_ITEMS,
-  autoPlayMs = 3000,
+  autoPlayMs = 4500,
   onExplore,
 }) => {
-  const navigate = (() => {
-    try {
-      // try to use react-router's useNavigate
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      return useNavigate();
-    } catch {
-      // if useNavigate can't be used (no react-router), return undefined and we will fall back to window.location
-      return undefined as unknown as ReturnType<typeof useNavigate>;
-    }
-  })();
+  const navigate = useNavigate();
 
   const safeItems = items?.length ? items : FALLBACK_ITEMS;
   const [i, setI] = useState(0);
@@ -661,14 +654,16 @@ const OvensShowcase: React.FC<Props> = ({
   const mobileOutlineRef = useRef<HTMLDivElement>(null);
   const liveRef = useRef<HTMLDivElement>(null);
 
-  // Reduced motion and pause controls
   const prefersReducedMotion = useMemo(
-    () => typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     []
   );
+
   const [paused, setPaused] = useState(false);
 
-  // Swipe handling
   const pointerDownX = useRef<number | null>(null);
   const pointerActive = useRef(false);
 
@@ -688,6 +683,7 @@ const OvensShowcase: React.FC<Props> = ({
         duration: 0.7,
         ease: "power3.out",
       });
+
       gsap.from(".ov-copy", {
         y: 20,
         opacity: 0,
@@ -696,50 +692,80 @@ const OvensShowcase: React.FC<Props> = ({
         ease: "power3.out",
       });
     }, rootRef);
+
     return () => ctx.revert();
   }, []);
 
-  // Slide transition animation (lighter: no blur, transform/opacity only)
-  const animateSwap = useCallback((dir: 1 | -1) => {
-    if (prefersReducedMotion) return;
-    const tl = gsap.timeline({ defaults: { ease: "power3.inOut" } });
-    const imgWrap = imgWrapRef.current;
-    const caption = captionRef.current;
-    tl.to([imgWrap, caption], {
-      opacity: 0,
-      y: 16 * dir,
-      duration: 0.45,
-      stagger: 0.04,
-    })
-      .set([imgWrap, caption], { y: -16 * dir })
-      .to([imgWrap, caption], {
-        opacity: 1,
-        y: 0,
-        duration: 0.45,
-        stagger: 0.04,
+  // Smooth slide transition
+  const animateSwap = useCallback(
+    (dir: 1 | -1) => {
+      if (prefersReducedMotion) return;
+
+      const imgWrap = imgWrapRef.current;
+      const caption = captionRef.current;
+
+      if (!imgWrap || !caption) return;
+
+      // Stop overlapping transitions
+      gsap.killTweensOf([imgWrap, caption]);
+
+      const tl = gsap.timeline({
+        defaults: {
+          ease: "power2.inOut",
+        },
       });
-  }, [prefersReducedMotion]);
+
+      tl.to([imgWrap, caption], {
+        opacity: 0,
+        y: 10 * dir,
+        duration: 0.35,
+        stagger: 0.04,
+      })
+        .set([imgWrap, caption], {
+          y: -10 * dir,
+        })
+        .to([imgWrap, caption], {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          stagger: 0.06,
+          ease: "power3.out",
+        });
+    },
+    [prefersReducedMotion]
+  );
 
   const next = useCallback(() => {
     if (!safeItems.length) return;
+
     animateSwap(1);
     setI((p) => (p + 1) % safeItems.length);
   }, [animateSwap, safeItems.length]);
 
   const prev = useCallback(() => {
     if (!safeItems.length) return;
+
     animateSwap(-1);
     setI((p) => (p - 1 + safeItems.length) % safeItems.length);
   }, [animateSwap, safeItems.length]);
 
-  // Autoplay with pause states and reduced motion
+  // Autoplay
   useEffect(() => {
-    if (prefersReducedMotion || !autoPlayMs || !safeItems.length || paused) return;
+    if (
+      prefersReducedMotion ||
+      !autoPlayMs ||
+      !safeItems.length ||
+      paused
+    ) {
+      return;
+    }
+
     const id = setInterval(next, autoPlayMs);
+
     return () => clearInterval(id);
   }, [next, autoPlayMs, safeItems.length, paused, prefersReducedMotion]);
 
-  // Update outline text (desktop + mobile) and live region
+  // Update outline text
   useLayoutEffect(() => {
     const el = outlineRef.current;
     const mobileEl = mobileOutlineRef.current;
@@ -756,19 +782,42 @@ const OvensShowcase: React.FC<Props> = ({
     }
 
     if (el) {
-      gsap.to(el, { opacity: 0, duration: 0.12, ease: "power2.out" });
+      gsap.to(el, {
+        opacity: 0,
+        duration: 0.2,
+        ease: "power2.out",
+      });
+
       const t = setTimeout(() => {
         el.textContent = cur?.title?.toUpperCase?.() ?? "";
-        gsap.to(el, { opacity: 1, duration: 0.2, ease: "power2.out" });
-      }, 120);
+
+        gsap.to(el, {
+          opacity: 1,
+          duration: 0.35,
+          ease: "power2.out",
+        });
+      }, 200);
+
       return () => clearTimeout(t);
     }
+
     if (mobileEl) {
-      gsap.to(mobileEl, { opacity: 0, duration: 0.12, ease: "power2.out" });
+      gsap.to(mobileEl, {
+        opacity: 0,
+        duration: 0.2,
+        ease: "power2.out",
+      });
+
       const t = setTimeout(() => {
         mobileEl.textContent = cur?.title?.toUpperCase?.() ?? "";
-        gsap.to(mobileEl, { opacity: 1, duration: 0.2, ease: "power2.out" });
-      }, 120);
+
+        gsap.to(mobileEl, {
+          opacity: 1,
+          duration: 0.35,
+          ease: "power2.out",
+        });
+      }, 200);
+
       return () => clearTimeout(t);
     }
   }, [cur?.title, cur?.indexLabel, prefersReducedMotion]);
@@ -779,7 +828,9 @@ const OvensShowcase: React.FC<Props> = ({
       if (e.key === "ArrowRight") next();
       if (e.key === "ArrowLeft") prev();
     };
+
     window.addEventListener("keydown", handler);
+
     return () => window.removeEventListener("keydown", handler);
   }, [next, prev]);
 
@@ -792,17 +843,21 @@ const OvensShowcase: React.FC<Props> = ({
       pointerActive.current = true;
       pointerDownX.current = e.clientX;
     };
+
     const onPointerMove = (e: PointerEvent) => {
       if (!pointerActive.current || pointerDownX.current == null) return;
+
       const dx = e.clientX - pointerDownX.current;
-      // threshold ~48px for intentional swipe
+
       if (Math.abs(dx) > 48) {
         pointerActive.current = false;
         pointerDownX.current = null;
+
         if (dx < 0) next();
         else prev();
       }
     };
+
     const onPointerUp = () => {
       pointerActive.current = false;
       pointerDownX.current = null;
@@ -827,7 +882,9 @@ const OvensShowcase: React.FC<Props> = ({
     () => ({
       prev:
         safeItems.length > 1
-          ? `Previous: ${safeItems[(i - 1 + safeItems.length) % safeItems.length].title}`
+          ? `Previous: ${
+              safeItems[(i - 1 + safeItems.length) % safeItems.length].title
+            }`
           : "Previous",
       next:
         safeItems.length > 1
@@ -839,24 +896,19 @@ const OvensShowcase: React.FC<Props> = ({
 
   if (!cur) return null;
 
-   // helper: create a slug from the title
   const makeSlug = (t: string) =>
     t
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
 
-  // New: navigation handler for Explore button
   const handleExplore = (item: OvenItem, index: number) => {
-    // call external callback first (if present)
     onExplore?.(item, index);
 
-    // determine destination
     const dest = item.link
       ? item.link
       : `/ovens/${makeSlug(item.title || `item-${index + 1}`)}`;
 
-    // if dest is an absolute url (starts with http) use window.location
     const isAbsolute = /^https?:\/\//i.test(dest);
 
     if (isAbsolute) {
@@ -864,15 +916,9 @@ const OvensShowcase: React.FC<Props> = ({
       return;
     }
 
-    // use react-router navigate if available, otherwise fallback to window.location
     try {
-      if (typeof navigate === "function") {
-        navigate(dest);
-      } else {
-        window.location.href = dest;
-      }
-    } catch (err) {
-      // fallback
+      navigate(dest);
+    } catch {
       window.location.href = dest;
     }
   };
@@ -880,7 +926,7 @@ const OvensShowcase: React.FC<Props> = ({
   return (
     <section
       ref={rootRef}
-      className="relative overflow-hidden bg-[#0a0b0c] text-white min-h-screen flex flex-col justify-center py-8 sm:py-12 md:py-16 lg:py-20"
+      className="relative flex min-h-screen flex-col justify-center overflow-hidden bg-[#0a0b0c] py-8 text-white sm:py-12 md:py-16 lg:py-20"
       aria-label="Ovens showcase carousel"
       aria-roledescription="carousel"
       onMouseEnter={() => setPaused(true)}
@@ -888,7 +934,6 @@ const OvensShowcase: React.FC<Props> = ({
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      {/* Live region for screen readers */}
       <div
         ref={liveRef}
         aria-live="polite"
@@ -896,19 +941,13 @@ const OvensShowcase: React.FC<Props> = ({
         className="sr-only"
       />
 
-      {/* Background outline text for desktop */}
+      {/* Background outline text - Desktop */}
       <div
         ref={outlineRef}
-        className="
-          pointer-events-none absolute inset-0 z-0 hidden md:flex items-start justify-center
-          overflow-hidden whitespace-nowrap
-          text-[clamp(28px,7.5vw,96px)]
-          font-extrabold tracking-tighter select-none
-          sm:items-center
-        "
+        className="pointer-events-none absolute inset-0 z-0 hidden select-none items-start justify-center overflow-hidden whitespace-nowrap text-[clamp(28px,7.5vw,96px)] font-extrabold tracking-tighter md:flex sm:items-center"
         style={{
-          WebkitTextStroke: "1px rgba(255,255,255,0.06)",
-          color: "transparent",
+          WebkitTextStroke: "1.2px rgba(255,255,255,0.20)",
+          color: "rgba(255,255,255,0.035)",
           textTransform: "uppercase",
           letterSpacing: "-0.05em",
         }}
@@ -917,18 +956,16 @@ const OvensShowcase: React.FC<Props> = ({
         {cur.title?.toUpperCase?.() || ""}
       </div>
 
-      {/* Main content container */}
-      <div className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 w-full">
-        {/* Top section: Headline + Subcopy */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 xl:gap-16 items-start mb-8 md:mb-12 lg:mb-16">
-          {/* Left: Headline */}
-          <div className="space-y-4 md:space-y-6 text-center lg:text-left">
-            <h2 className="ov-head font-normal leading-[1.08] tracking-[-0.025em] text-[clamp(30px,5.5vw,54px)]">
+      <div className="relative z-10 mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-12 xl:px-16">
+        {/* Headline and subcopy */}
+        <div className="mb-8 grid grid-cols-1 items-start gap-6 md:mb-12 md:gap-8 lg:mb-16 lg:grid-cols-2 lg:gap-12 xl:gap-16">
+          <div className="space-y-4 text-center md:space-y-6 lg:text-left">
+            <h2 className="ov-head text-[clamp(30px,5.5vw,54px)] font-normal leading-[1.08] tracking-[-0.025em]">
               {headMain}
               {headLast && (
                 <>
                   <br />
-                  <span className="block text-[clamp(32px,6.5vw,66px)] mt-1">
+                  <span className="mt-1 block text-[clamp(32px,6.5vw,66px)]">
                     {headLast}
                   </span>
                 </>
@@ -936,34 +973,27 @@ const OvensShowcase: React.FC<Props> = ({
             </h2>
           </div>
 
-          {/* Right: Subcopy */}
           <div className="lg:pl-4">
-            <p className="ov-copy text-white/75 text-[16px] md:text-[17px] text-[#BCBCBC] leading-[1.6] tracking-[0.02em] max-w-2xl text-center lg:text-left mx-auto lg:mx-0">
+            <p className="ov-copy mx-auto max-w-2xl text-center text-[16px] leading-[1.6] tracking-[0.02em] text-[#BCBCBC] lg:mx-0 lg:text-left md:text-[17px]">
               {subcopy}
             </p>
           </div>
         </div>
 
-        {/* Center stage: Image + navigation */}
+        {/* Image stage */}
         <div className="relative mt-6 md:mt-10 lg:mt-12">
-          {/* Soft glow effect */}
           <div
-            className="absolute inset-0 top-1/4 blur-[80px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.04)_0%,transparent_65%)] -z-10 h-[50%]"
+            className="absolute inset-0 top-1/4 -z-10 h-[50%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.04)_0%,transparent_65%)] blur-[80px]"
             aria-hidden="true"
           />
 
-          {/* Outline text above oven on mobile */}
+          {/* Background outline text - Mobile */}
           <div
             ref={mobileOutlineRef}
-            className="
-              text-center
-              text-[clamp(28px,7.5vw,96px)]
-              font-extrabold tracking-tighter select-none
-              mb-4 md:hidden
-            "
+            className="mb-4 select-none text-center text-[clamp(28px,7.5vw,96px)] font-extrabold tracking-tighter md:hidden"
             style={{
-              WebkitTextStroke: "1px rgba(255,255,255,0.06)",
-              color: "transparent",
+              WebkitTextStroke: "1.2px rgba(255,255,255,0.20)",
+              color: "rgba(255,255,255,0.035)",
               textTransform: "uppercase",
               letterSpacing: "-0.05em",
             }}
@@ -972,24 +1002,13 @@ const OvensShowcase: React.FC<Props> = ({
             {cur.title?.toUpperCase?.() || ""}
           </div>
 
-          {/* Image stage with responsive fixed dimensions */}
           <div
             ref={stageRef}
-            className="mx-auto w-full grid place-items-center px-2 xs:px-4 sm:px-8 md:px-12 lg:px-20"
+            className="mx-auto grid w-full place-items-center px-2 xs:px-4 sm:px-8 md:px-12 lg:px-20"
           >
             <div
               ref={imgWrapRef}
-              className="
-                /* Mobile responsive container dimensions */
-                w-[280px] h-[260px]
-                sm:w-[400px] sm:h-[380px]
-                md:w-[550px] md:h-[500px]
-                lg:w-[650px] lg:h-[600px]
-                xl:w-[720px] xl:h-[650px] /* Your specified desktop size */
-                grid place-items-center
-                will-change-transform will-change-opacity
-                transition-all duration-300
-              "
+              className="grid h-[260px] w-[280px] place-items-center will-change-transform will-change-opacity transition-all duration-300 sm:h-[380px] sm:w-[400px] md:h-[500px] md:w-[550px] lg:h-[600px] lg:w-[650px] xl:h-[650px] xl:w-[720px]"
               style={{ transformStyle: "preserve-3d" }}
             >
               <img
@@ -997,39 +1016,18 @@ const OvensShowcase: React.FC<Props> = ({
                 key={cur.image}
                 src={cur.image}
                 alt={cur.title}
-                className="
-                  w-auto
-                  /* Mobile responsive image height */
-                  h-[200px]
-                  sm:h-[280px]
-                  md:h-[380px]
-                  lg:h-[480px]
-                  xl:h-[550px] /* Your specified image height */
-                  object-contain
-                  drop-shadow-[0_20px_60px_rgba(0,0,0,0.7)]
-                  transition-all duration-300
-                "
+                className="h-[200px] w-auto object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.7)] transition-all duration-300 sm:h-[280px] md:h-[380px] lg:h-[480px] xl:h-[550px]"
                 loading="eager"
                 decoding="async"
               />
             </div>
           </div>
 
-          {/* Left arrow */}
+          {/* Previous button */}
           <button
             aria-label={aria.prev}
             onClick={prev}
-            className="
-              absolute left-0 sm:left-2 md:left-4 lg:left-6 top-1/2 -translate-y-1/2
-              inline-flex items-center justify-center
-              w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12
-              rounded-full
-              bg-white/[0.08] hover:bg-white/[0.14]
-              backdrop-blur-sm border border-white/10
-              transition-all duration-200
-              focus:outline-none focus:ring-2 focus:ring-white/30
-              group
-            "
+            className="group absolute left-0 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] backdrop-blur-sm transition-all duration-200 hover:bg-white/[0.14] focus:outline-none focus:ring-2 focus:ring-white/30 sm:left-2 sm:h-11 sm:w-11 md:left-4 md:h-12 md:w-12 lg:left-6"
           >
             <svg
               width="18"
@@ -1049,21 +1047,11 @@ const OvensShowcase: React.FC<Props> = ({
             </svg>
           </button>
 
-          {/* Right arrow */}
+          {/* Next button */}
           <button
             aria-label={aria.next}
             onClick={next}
-            className="
-              absolute right-0 sm:right-2 md:right-4 lg:right-6 top-1/2 -translate-y-1/2
-              inline-flex items-center justify-center
-              w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12
-              rounded-full
-              bg-white/[0.08] hover:bg-white/[0.14]
-              backdrop-blur-sm border border-white/10
-              transition-all duration-200
-              focus:outline-none focus:ring-2 focus:ring-white/30
-              group
-            "
+            className="group absolute right-0 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] backdrop-blur-sm transition-all duration-200 hover:bg-white/[0.14] focus:outline-none focus:ring-2 focus:ring-white/30 sm:right-2 sm:h-11 sm:w-11 md:right-4 md:h-12 md:w-12 lg:right-6"
           >
             <svg
               width="18"
@@ -1084,15 +1072,14 @@ const OvensShowcase: React.FC<Props> = ({
           </button>
         </div>
 
-        {/* Bottom caption section */}
+        {/* Caption */}
         <div
           ref={captionRef}
-          className="mt-8 md:mt-10 lg:mt-12 flex flex-col gap-5 md:gap-6"
+          className="mt-8 flex flex-col gap-5 md:mt-10 md:gap-6 lg:mt-12"
         >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-5 lg:gap-6">
-            {/* Index number */}
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center md:gap-5 lg:gap-6">
             <span
-              className="text-[clamp(44px,7.5vw,92px)] font-extrabold select-none leading-none mx-auto sm:mx-0"
+              className="mx-auto select-none text-[clamp(44px,7.5vw,92px)] font-extrabold leading-none sm:mx-0"
               style={{
                 WebkitTextStroke: "1.5px rgba(255,255,255,0.12)",
                 color: "transparent",
@@ -1102,62 +1089,53 @@ const OvensShowcase: React.FC<Props> = ({
               {cur.indexLabel}
             </span>
 
-            {/* Title and blurb */}
-            <div className="flex-1 min-w-0 text-center sm:text-left">
-              <h3 className="text-[clamp(22px,3.25vw,40px)] font-semibold leading-tight tracking-[-0.015em] mb-1">
+            <div className="min-w-0 flex-1 text-center sm:text-left">
+              <h3 className="mb-1 text-[clamp(22px,3.25vw,40px)] font-semibold leading-tight tracking-[-0.015em]">
                 {cur.title}
               </h3>
+
               <p
                 id="slide-blurb"
-                className="text-white/75 text-[16px] md:text-[17px] text-[#BCBCBC] leading-[1.6] tracking-[0.02em] max-w-3xl mx-auto sm:mx-0"
+                className="mx-auto max-w-3xl text-[16px] leading-[1.6] tracking-[0.02em] text-[#BCBCBC] sm:mx-0 md:text-[17px]"
               >
-                {cur.blurb || "Crafted to be sturdy and lightweight, ideal for events."}
+                {cur.blurb ||
+                  "Crafted to be sturdy and lightweight, ideal for events."}
               </p>
             </div>
 
-            {/* Explore button */}
             <button
               type="button"
               onClick={() => handleExplore(cur, i)}
               aria-describedby="slide-blurb"
-              className="
-                inline-flex items-center gap-2.5
-                rounded-full
-                bg-[#E20A17] hover:bg-[#ff1a2a]
-                px-5 py-2.5 sm:px-6 sm:py-3
-                text-sm sm:text-base font-medium
-                transition-all duration-200
-                whitespace-nowrap
-                focus:outline-none focus:ring-2 focus:ring-red-400/50
-                group
-                mx-auto sm:mx-0
-              "
+              className="group mx-auto inline-flex items-center gap-2.5 whitespace-nowrap rounded-full bg-[#E20A17] px-5 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-[#ff1a2a] focus:outline-none focus:ring-2 focus:ring-red-400/50 sm:mx-0 sm:px-6 sm:py-3 sm:text-base"
             >
               <span>Explore</span>
-               <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              className="transition-transform group-hover:translate-x-0.5"
-              aria-hidden="true"
-            >
-              <path
-                d="M9 5l7 7-7 7"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              >
+                <path
+                  d="M9 5l7 7-7 7"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
           </div>
 
           {/* Progress indicator */}
-          <div className="relative mt-2 h-[2.5px] w-full bg-white/10 overflow-hidden rounded-full">
+          <div className="relative mt-2 h-[2.5px] w-full overflow-hidden rounded-full bg-white/10">
             <span
-              className="absolute left-0 top-0 h-full bg-white/60 transition-[width] duration-300 ease-out rounded-full"
-              style={{ width: `${((i + 1) / safeItems.length) * 100}%` }}
+              className="absolute left-0 top-0 h-full rounded-full bg-white/60 transition-[width] duration-300 ease-out"
+              style={{
+                width: `${((i + 1) / safeItems.length) * 100}%`,
+              }}
               aria-hidden="true"
             />
           </div>
@@ -1165,7 +1143,7 @@ const OvensShowcase: React.FC<Props> = ({
 
         {/* Pagination dots */}
         <div
-          className="mt-8 sm:mt-10 md:mt-12 flex items-center justify-center gap-2.5"
+          className="mt-8 flex items-center justify-center gap-2.5 sm:mt-10 md:mt-12"
           role="tablist"
           aria-label="Slides"
         >
@@ -1178,12 +1156,13 @@ const OvensShowcase: React.FC<Props> = ({
                 setI(idx);
               }}
               role="tab"
-              aria-selected={idx === i ? "true" : "false"}
+              aria-selected={idx === i}
               aria-label={`Go to slide ${idx + 1}`}
-              className={`
-                h-1.5 rounded-full transition-all duration-250 ease-out
-                ${idx === i ? "w-8 sm:w-9 bg-white" : "w-2.5 sm:w-3 bg-white/30 hover:bg-white/50"}
-              `}
+              className={`h-1.5 rounded-full transition-all duration-300 ease-out ${
+                idx === i
+                  ? "w-8 bg-white sm:w-9"
+                  : "w-2.5 bg-white/30 hover:bg-white/50 sm:w-3"
+              }`}
             />
           ))}
         </div>

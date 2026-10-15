@@ -12,17 +12,17 @@ import SaifFaq from "./SaifFaq";
 export default function AboutUs() {
   return (
     <>
-    <section className="relative w-screen left-1/2 right-1/2 -mx-[50vw] h-[75vh] md:h-[90vh] overflow-hidden">
+    {/* <section className="relative w-screen left-1/2 right-1/2 -mx-[50vw] h-[75vh] md:h-[90vh] overflow-hidden"> */}
       
       {/* Background Image */}
-      <img
+      {/* <img
         src={HeroImg}
         alt="About Hero"
         className="w-full h-full object-cover brightness-75"
-      />
+      /> */}
 
       {/* Content */}
-      <div className="absolute inset-0 flex flex-col justify-center ml-14 md:ml-20 lg:ml-24">
+      {/* <div className="absolute inset-0 flex flex-col justify-center ml-14 md:ml-20 lg:ml-24">
         
         <p
           className="text-[clamp(30px,3.2vw,56px)] leading-[1.1] font-thin tracking-[0.03em] text-gray-100 mb-4"
@@ -38,14 +38,14 @@ export default function AboutUs() {
           In India
         </h1>
       </div>
-    </section>
-    <AboutSection />
+    </section> */}
+    {/* <AboutSection /> */}
     <AboutFounder />
-    <AboutGallery />
-    <WhyChooseUs />
-    <ProjectsInIndia />
-    <SaifGallery />
-    <SaifFaq />
+    {/* <AboutGallery /> */}
+    {/* <WhyChooseUs /> */}
+    {/* <ProjectsInIndia /> */}
+    {/* <SaifGallery /> */}
+    {/* <SaifFaq /> */}
     </>
   );
 }

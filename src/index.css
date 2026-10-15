@@ -44,6 +44,31 @@ img, video {
   height: auto;
 }
 
+.discover-icon {
+  animation: discover-float 1.5s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.35);
+}
+
+@keyframes discover-float {
+  0%,
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.25);
+  }
+
+  50% {
+    transform: translateY(-5px);
+    box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .discover-icon {
+    animation: none;
+  }
+}
+
+
 /* --- IMPORTANT: Lenis ke saath CSS smooth-scroll conflict na ho --- */
 /* Agar kahin aur (3rd-party CSS/component) scroll-behavior: smooth set hai,
    to is override se wo neutralize ho jayega. */
@@ -55,3 +80,4 @@ html {
 :root {
   --off-white: #f9f9f9; /* 👈 or any shade you like */
 }
+

@@ -486,7 +486,6 @@ const CommercialOvenHero: React.FC<{
         </div>
       </section>
 
-      <InstallProcessSection />
     </>
   );
 };

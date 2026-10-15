@@ -1,4 +1,4 @@
-// src/components/Header.tsx
+
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
@@ -12,14 +12,18 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
+
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => setOpen(false), [location]);
+  useEffect(() => {
+    setOpen(false);
+  }, [location]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
+
     return () => {
       document.body.style.overflow = "";
     };
@@ -30,12 +34,14 @@ const Header: React.FC = () => {
     { name: "Contact Us", path: "/contact" },
     { name: "Blogs", path: "/blog" },
   ];
+
   const rightMenu = [
     { name: "Commercial Oven", path: "/commercialovens" },
     { name: "Portable Oven", path: "/portableovens" },
     { name: "Residential Oven", path: "/residentialovens" },
   ];
-  const isActive = (p: string) => location.pathname === p;
+
+  const isActive = (path: string) => location.pathname === path;
 
   const headerAnim = {
     background: scrolled
@@ -43,7 +49,9 @@ const Header: React.FC = () => {
       : "linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0))",
     backdropFilter: scrolled ? "blur(10px)" : "blur(6px)",
     height: scrolled ? "66px" : "82px",
-    boxShadow: scrolled ? "0 8px 28px rgba(0,0,0,.35)" : "0 2px 10px rgba(0,0,0,.12)",
+    boxShadow: scrolled
+      ? "0 8px 28px rgba(0,0,0,.35)"
+      : "0 2px 10px rgba(0,0,0,.12)",
   };
 
   const navTextClass =
@@ -51,72 +59,101 @@ const Header: React.FC = () => {
 
   return (
     <>
-      {/* Header (non-sticky relative as requested) */}
       <motion.header
         initial={false}
         animate={headerAnim}
         transition={{ duration: 0.25, ease: "easeInOut" }}
-        className="relative w-full text-white z-[10]"
+        className="relative z-[10] w-full text-white"
         style={{ fontFamily: "var(--brand-font)" }}
       >
-        <div className="relative w-full px-4 sm:px-6 lg:px-8" style={{ height: headerAnim.height }}>
-          <div className="h-full grid grid-cols-3 items-center">
-            {/* LEFT nav (desktop) */}
-            <nav className="hidden lg:flex items-center justify-start gap-8 pl-10">
+        <div
+          className="relative w-full px-4 sm:px-6 lg:px-8"
+          style={{ height: headerAnim.height }}
+        >
+          <div className="grid h-full grid-cols-3 items-center">
+            {/* Left navigation: wider desktop screens only */}
+            <nav className="hidden xl:flex items-center justify-start gap-5 pl-2">
               {leftMenu.map((item) => (
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`${navTextClass} ${isActive(item.path) ? "text-white" : "text-white/80 hover:text-[#E30613]"}`}
+                  className={`${navTextClass} ${
+                    isActive(item.path)
+                      ? "text-white"
+                      : "text-white/80 hover:text-[#E30613]"
+                  }`}
                 >
                   {item.name}
                 </Link>
               ))}
             </nav>
 
-            {/* CENTER logo */}
-            <div className="flex items-center justify-center">
+            {/* Center logo */}
+            <div className="col-start-2 flex items-center justify-center">
               <Link to="/" aria-label="Home" className="inline-block">
                 <img
+                  id="site-header-logo"
                   src={Logo}
                   alt="Logo"
-                  className="h-[68px] md:h-[76px] object-contain transition-transform duration-300"
+                  className="h-[52px] sm:h-[60px] xl:h-[76px] object-contain transition-transform duration-300"
                   style={{ display: "block" }}
                 />
               </Link>
             </div>
 
-            {/* RIGHT nav (desktop) */}
-            <nav className="hidden lg:flex items-center justify-end gap-8 pr-8">
+            {/* Right navigation: wider desktop screens only */}
+            <nav className="hidden xl:flex items-center justify-end gap-5 pr-2">
               {rightMenu.map((item) => (
                 <Link
                   key={item.name}
                   to={item.path}
-                  className={`${navTextClass} ${isActive(item.path) ? "text-white" : "text-white/80 hover:text-red-700"}`}
+                  className={`${navTextClass} ${
+                    isActive(item.path)
+                      ? "text-white"
+                      : "text-white/80 hover:text-red-700"
+                  }`}
                 >
                   {item.name}
                 </Link>
               ))}
 
-              <a href="mailto:info@yourbrand.com" aria-label="Email" className="p-1 opacity-85 hover:opacity-100 transition-opacity">
-                <svg viewBox="0 0 24 24" width="24" height="24" className="stroke-white fill-none">
-                  <rect x="3" y="6" width="18" height="12" rx="2" strokeWidth="1.6" />
+              <a
+                href="mailto:info@yourbrand.com"
+                aria-label="Email"
+                className="p-1 opacity-85 transition-opacity hover:opacity-100"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="24"
+                  height="24"
+                  className="fill-none stroke-white"
+                >
+                  <rect
+                    x="3"
+                    y="6"
+                    width="18"
+                    height="12"
+                    rx="2"
+                    strokeWidth="1.6"
+                  />
                   <path d="M3 7l9 6 9-6" strokeWidth="1.6" />
                 </svg>
               </a>
             </nav>
 
-            {/* MOBILE hamburger (toggle) - absolute so it won't drop under other elements */}
-            <div className="lg:hidden">
+            {/* Hamburger: tablet and mobile */}
+            <div className="xl:hidden">
               <button
-                onClick={() => setOpen((p) => !p)}
-                aria-label="Toggle menu"
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 grid place-items-center rounded-md focus:outline-none focus:ring-2 focus:ring-white/30"
+                type="button"
+                onClick={() => setOpen((previous) => !previous)}
+                aria-label={open ? "Close menu" : "Toggle menu"}
+                aria-expanded={open}
+                className="absolute right-4 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-md focus:outline-none focus:ring-2 focus:ring-white/30"
                 style={{ zIndex: 9999 }}
               >
                 <span className="relative block w-6">
                   <span className="absolute inset-x-0 -top-2 h-[2px] bg-white" />
-                  <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[2px] bg-white" />
+                  <span className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 bg-white" />
                   <span className="absolute inset-x-0 -bottom-2 h-[2px] bg-white" />
                 </span>
               </button>
@@ -125,13 +162,12 @@ const Header: React.FC = () => {
         </div>
       </motion.header>
 
-      {/* Drawer portal: rendered at document.body to avoid stacking/context issues */}
+      {/* Drawer rendered at document.body */}
       {typeof document !== "undefined" &&
         createPortal(
           <AnimatePresence>
             {open && (
               <>
-                {/* Overlay */}
                 <motion.div
                   key="portal-overlay"
                   initial={{ opacity: 0 }}
@@ -145,11 +181,9 @@ const Header: React.FC = () => {
                     background: "rgba(0,0,0,0.55)",
                     zIndex: 99999,
                     willChange: "opacity",
-                    transform: "translateZ(0)",
                   }}
                 />
 
-                {/* Drawer panel */}
                 <motion.aside
                   key="portal-drawer"
                   initial={{ x: "100%", opacity: 0 }}
@@ -166,36 +200,46 @@ const Header: React.FC = () => {
                     background: "#0b0b0b",
                     color: "#fff",
                     zIndex: 100000,
-                    transform: "translateZ(0)",
                     willChange: "transform, opacity",
                     boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
                   }}
                 >
-                  <div className="flex items-center justify-between ">
-                    
-
+                  <div className="flex items-center justify-between">
                     <button
+                      type="button"
                       onClick={() => setOpen(false)}
                       aria-label="Close menu"
-                      className="w-9 h-9 grid place-items-center"
+                      className="grid h-9 w-9 place-items-center"
                     >
-                      <svg viewBox="0 0 24 24" width="22" height="22" className="stroke-white fill-none">
-                        <path d="M6 6l12 12M18 6L6 18" strokeWidth="2" strokeLinecap="round" />
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="22"
+                        height="22"
+                        className="fill-none stroke-white"
+                      >
+                        <path
+                          d="M6 6l12 12M18 6L6 18"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
                       </svg>
                     </button>
                   </div>
 
-                  <nav className="px-5 py-6 overflow-auto" style={{ maxHeight: "calc(100vh - 64px)" }}>
+                  <nav
+                    className="overflow-auto px-5 py-6"
+                    style={{ maxHeight: "calc(100vh - 64px)" }}
+                  >
                     {[...leftMenu, ...rightMenu].map((item) => (
                       <div key={item.name} className="mb-0">
                         <Link
                           to={item.path}
                           onClick={() => setOpen(false)}
-                          className="block py-4 text-[18px] font-medium text-white/90 hover:text-white transition-colors duration-200"
+                          className="block py-4 text-[18px] font-medium text-white/90 transition-colors duration-200 hover:text-white"
                         >
                           {item.name}
                         </Link>
-                        <div className="h-px bg-white/6" />
+                        <div className="h-px bg-white/10" />
                       </div>
                     ))}
                   </nav>

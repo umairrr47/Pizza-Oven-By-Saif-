@@ -80,7 +80,7 @@ const ProjectsInIndia: React.FC = () => {
             animate={isInView ? { opacity: 1 } : { opacity: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            Saif Ameer (formerly known as Pizza Oven By Saif) has blended authentic Italian craftsmanship 
+            Saif Ameer (known as Pizza Oven By Saif) has blended authentic Italian craftsmanship 
             with cutting-edge manufacturing processes to deliver high-performance ovens at scale.
           </motion.p>
 

@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
                   alt="Pizza Oven By Saif"
                   className="h-24 w-auto object-contain" // Removed transform scale, increased height
                 />
-                
+
                 <div className="mb-4  text-[16px] md:text-[16px] lg:text-[16px] font-light text-[#ffffff] tracking-[0.015em]">
                   <p>The Best Commercial Wood Fired</p>
                   <p>Pizza Oven In India</p>
@@ -31,21 +31,27 @@ const Footer: React.FC = () => {
               {/* Social media icons */}
               <div className="flex gap-3">
                 <a
-                  href="www.instagram.com/the_pizza_ovens_by_saif/"
+                  href="https://www.instagram.com/the_pizza_ovens_by_saif/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label="Instagram"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/20 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 hover:scale-110"
                 >
                   <Instagram size={18} />
                 </a>
                 <a
-                  href="www.facebook.com/thepizzaovensbysaif/"
+                  href="https://www.facebook.com/thepizzaovensbysaif/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label="Facebook"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/20 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 hover:scale-110"
                 >
                   <Facebook size={18} />
                 </a>
                 <a
-                  href="www.youtube.com/channel/UC2Y5-Gmxu854G3hPQ15hl4g"
+                  href="https://www.youtube.com/channel/UC2Y5-Gmxu854G3hPQ15hl4g"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label="YouTube"
                   className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/20 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 hover:scale-110"
                 >
@@ -82,21 +88,33 @@ const Footer: React.FC = () => {
             <h4 className=" mb-4  text-[18px] md:text-[18px] lg:text-[18px] font-normal text-[#ffffff] tracking-[0.015em]">Our Treatments</h4>
             <ul className="space-y-3 text-sm text-gray-300">
               <li>
-                <Link to="/products/commercial-oven" className="hover:text-white transition-colors duration-300 text-[14px] md:text-[14px] text-[#c5c2c2] tracking-[0.02em]">
+                <Link
+                  to="/commercialovens"
+                  className="hover:text-white transition-colors duration-300 text-[14px] text-[#c5c2c2] tracking-[0.02em]"
+                >
                   Commercial Oven
                 </Link>
               </li>
+
               <li>
-                <Link to="/products/portable-oven" className="hover:text-white transition-colors duration-300 text-[14px] md:text-[14px] text-[#c5c2c2] tracking-[0.02em]">
+                <Link
+                  to="/portableovens"
+                  className="hover:text-white transition-colors duration-300 text-[14px] text-[#c5c2c2] tracking-[0.02em]"
+                >
                   Portable Oven
                 </Link>
               </li>
+
               <li>
-                <Link to="/products/residential-oven" className="hover:text-white transition-colors duration-300 text-[14px] md:text-[14px] text-[#c5c2c2] tracking-[0.02em]">
+                <Link
+                  to="/residentialovens"
+                  className="hover:text-white transition-colors duration-300 text-[14px] text-[#c5c2c2] tracking-[0.02em]"
+                >
                   Residential Oven
                 </Link>
               </li>
             </ul>
+
           </div>
 
           {/* Contact Us */}
@@ -146,13 +164,13 @@ const Footer: React.FC = () => {
             </Link>
           </div>
         </div>
-         <div className="w-screen mt-10 relative left-1/2 right-1/2 -mx-[50vw]">
-  <img
-    src={Footimg}
-    alt="Footer Decoration"
-    className="w-screen h-auto object-cover"
-  />
-</div>
+        {/* <div className="w-screen mt-10 relative left-1/2 right-1/2 -mx-[50vw]">
+          <img
+            src={Footimg}
+            alt="Footer Decoration"
+            className="w-screen h-auto object-cover"
+          />
+        </div> */}
       </div>
 
 

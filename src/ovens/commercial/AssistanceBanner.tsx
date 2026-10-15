@@ -1,6 +1,6 @@
 // src/components/AssistanceBanner.tsx
 import React from "react";
-import Icon from "../../assets/headphoneicon.webp";
+import Icon from "../../assets/headphoneicon.png";
 
 type Props = {
   title?: React.ReactNode;
@@ -19,7 +19,7 @@ export default function AssistanceBanner({
     </>
   ),
   ctaLabel = "Get Assistance",
-  whatsappNumber = "919899593526", 
+  whatsappNumber = "+919899593526", 
   iconSrc = Icon,
   iconAlt = "Customer support",
 }: Props) {

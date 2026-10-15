@@ -480,7 +480,6 @@ const PortableOvenHero: React.FC<{
         </div>
       </section>
 
-      <InstallProcessSection />
     </>
   );
 };

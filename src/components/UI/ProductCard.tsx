@@ -1,178 +1,169 @@
-// import React from "react";
-// import { motion } from "framer-motion";
-// import { Eye, ArrowRight, Star } from "lucide-react";
-// import { Product } from "../../data/products";
-
-// interface Props {
-//   product: Product;
-//   onQuickView: (p: Product) => void;
-// }
-
-// /** pick a single premium badge to avoid clutter */
-// const primaryBadge = (badges?: Product["badges"]) => {
-//   if (!badges?.length) return null;
-//   const order = ["Bestseller", "Pro", "New", "Limited", "Chef Choice"] as const;
-//   for (const b of order) if (badges.includes(b as any)) return b;
-//   return badges[0];
-// };
-
-// const ProductCard: React.FC<Props> = ({ product, onQuickView }) => {
-//   const rating = Math.round(product.rating || 0);
-//   const badge = primaryBadge(product.badges);
-
-//   return (
-//     <motion.button
-//       type="button"
-//       onClick={() => onQuickView(product)}
-//       className="group relative w-full overflow-hidden rounded-xl bg-white/80 ring-1 ring-black/5 backdrop-blur text-left"
-//       initial={{ opacity: 0, y: 18 }}
-//       animate={{ opacity: 1, y: 0 }}
-//       whileHover={{ y: -6, scale: 1.01 }}
-//       transition={{ duration: 0.35 }}
-//     >
-//       {/* square = same width/height everywhere */}
-//       <div className="relative aspect-square">
-//         <img
-//           src={product.image}
-//           alt={product.name}
-//           className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-//           loading="lazy"
-//         />
-//         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-
-//         {badge && (
-//           <span className="absolute top-3 left-3 z-10 rounded-full bg-neutral-900/90 px-2.5 py-1 text-[11px] font-medium text-white shadow">
-//             {badge}
-//           </span>
-//         )}
-//         <span className="absolute top-3 right-3 z-10 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-neutral-900 ring-1 ring-black/5 shadow">
-//           {product.price}
-//         </span>
-
-//         <motion.span
-//           className="absolute bottom-3 right-3 z-10 inline-flex items-center justify-center rounded-full bg-white/90 p-2.5 text-neutral-800 shadow opacity-0 group-hover:opacity-100 transition"
-//           whileHover={{ scale: 1.06 }}
-//           whileTap={{ scale: 0.95 }}
-//           aria-hidden="true"
-//         >
-//           <Eye size={18} />
-//         </motion.span>
-//       </div>
-
-//       <div className="p-3">
-//         <h3 className="font-semibold leading-tight text-neutral-900 line-clamp-2">
-//           {product.name}
-//         </h3>
-
-//         <div className="mt-1 flex items-center gap-1">
-//           {Array.from({ length: 5 }).map((_, i) => (
-//             <Star
-//               key={i}
-//               size={12}
-//               className={i < rating ? "text-amber-400 fill-amber-400" : "text-neutral-300"}
-//             />
-//           ))}
-//           {product.reviewsCount ? (
-//             <span className="text-[11px] text-neutral-500">({product.reviewsCount})</span>
-//           ) : null}
-//         </div>
-
-//         <div className="mt-2 inline-flex items-center gap-1 text-[12px] font-medium text-amber-700">
-//           View details <ArrowRight size={14} />
-//         </div>
-//       </div>
-//     </motion.button>
-//   );
-// };
-
-// export default ProductCard;
-
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Eye, ArrowRight, Star } from "lucide-react";
-import { Link } from "react-router-dom";               // ⬅️ add this
-import { Product } from "../../data/products";
+import { ArrowUpRight, Eye, Flame, Layers3 } from "lucide-react";
+import { Link } from "react-router-dom";
+import type { Product } from "../../data/products";
 
 interface Props {
   product: Product;
+  index?: number;
+  size?: "large" | "small";
+  onQuickView?: (product: Product) => void;
 }
 
-/** pick a single premium badge to avoid clutter */
 const primaryBadge = (badges?: Product["badges"]) => {
   if (!badges?.length) return null;
-  const order = ["Bestseller", "Pro", "New", "Limited", "Chef Choice"] as const;
-  for (const b of order) if (badges.includes(b as any)) return b;
-  return badges[0];
+
+  const priority = [
+    "Bestseller",
+    "Pro",
+    "New",
+    "Chef Choice",
+    "Limited",
+  ] as const;
+
+  return priority.find((badge) => badges.includes(badge));
 };
 
-const ProductCard: React.FC<Props> = ({ product }) => {
-  const rating = Math.round(product.rating || 0);
+const ProductCard: React.FC<Props> = ({
+  product,
+  index = 0,
+  size = "large",
+  onQuickView,
+}) => {
   const badge = primaryBadge(product.badges);
+  const slug = product.slug || String(product.id);
+  const isLarge = size === "large";
 
   return (
-    <motion.div                                       // ⬅️ button → div
-      className="group relative w-full overflow-hidden rounded-xl bg-white/80 ring-1 ring-black/5 backdrop-blur text-left"
-      initial={{ opacity: 0, y: 18 }}
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -6, scale: 1.01 }}
-      transition={{ duration: 0.35 }}
+      transition={{
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+        delay: Math.min(index * 0.05, 0.3),
+      }}
+      whileHover={{ y: -6 }}
+      className={`group relative flex aspect-[4/5] w-full flex-col overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#121210] text-white transition-[border-color,box-shadow] duration-500 hover:border-orange-500/40 hover:shadow-[0_30px_60px_-25px_rgba(255,122,47,0.35)] ${
+        isLarge ? "" : "rounded-[1.5rem]"
+      }`}
     >
-      {/* square = same width/height everywhere */}
-      <div className="relative aspect-square">
+      {/* Whole card navigation */}
+      <Link
+        to={`/products/${slug}`}
+        aria-label={`View ${product.name}`}
+        className="absolute inset-0 z-[1] rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+      />
+
+      {/* Oven image */}
+      <div
+        className="relative min-h-0 flex-1 overflow-hidden"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 60%, rgba(255,122,47,0.16), transparent 65%)",
+        }}
+      >
         <img
           src={product.image}
           alt={product.name}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
+          loading={index < 6 ? "eager" : "lazy"}
+          className="h-full w-full object-contain object-center p-2 transition-transform duration-700 ease-out group-hover:scale-[1.05] sm:p-3"
+          onError={(event) => {
+            console.error(
+              `Failed to load image for ${product.name}:`,
+              event.currentTarget.src
+            );
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
+        {/* Product badge */}
         {badge && (
-          <span className="absolute top-3 left-3 z-10 rounded-full bg-neutral-900/90 px-2.5 py-1 text-[11px] font-medium text-white shadow">
+          <span
+            className={`absolute left-4 top-4 rounded-full border border-white/10 bg-black/60 font-semibold uppercase tracking-[0.16em] text-white/90 backdrop-blur ${
+              isLarge
+                ? "px-3 py-1.5 text-[10px]"
+                : "px-2.5 py-1 text-[9px]"
+            }`}
+          >
             {badge}
           </span>
         )}
-        <span className="absolute top-3 right-3 z-10 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold text-neutral-900 ring-1 ring-black/5 shadow">
-          {product.price}
-        </span>
 
-        {/* decorative icon only */}
-        <span className="pointer-events-none absolute bottom-3 right-3 z-10 inline-flex items-center justify-center rounded-full bg-white/90 p-2.5 text-neutral-800 shadow opacity-0 group-hover:opacity-100 transition">
-          <Eye size={18} />
-        </span>
+        {/* Quick View */}
+        {onQuickView && (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onQuickView(product);
+            }}
+            aria-label={`Quick view ${product.name}`}
+            className="absolute right-4 top-4 z-[3] flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/60 text-white opacity-100 backdrop-blur transition duration-300 hover:border-orange-400 hover:bg-orange-500 hover:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 lg:translate-y-1 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100"
+          >
+            <Eye size={17} />
+          </button>
+        )}
       </div>
 
-      <div className="p-3">
-        <h3 className="font-semibold leading-tight text-neutral-900 line-clamp-2">
-          {product.name}
-        </h3>
+      {/* Product details */}
+      <div
+        className={`relative z-[2] border-t border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent ${
+          isLarge ? "px-5 py-5 sm:px-6" : "px-4 py-3.5"
+        }`}
+      >
+        <p
+          className={`flex items-center gap-1.5 font-semibold uppercase text-orange-400 ${
+            isLarge
+              ? "text-[10px] tracking-[0.2em]"
+              : "text-[9px] tracking-[0.16em]"
+          }`}
+        >
+          <Flame size={isLarge ? 13 : 11} />
+          <span className="truncate">{product.category}</span>
+        </p>
 
-        <div className="mt-1 flex items-center gap-1">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Star
-              key={i}
-              size={12}
-              className={i < rating ? "text-amber-400 fill-amber-400" : "text-neutral-300"}
-            />
-          ))}
-          {product.reviewsCount ? (
-            <span className="text-[11px] text-neutral-500">({product.reviewsCount})</span>
-          ) : null}
+        <div className="mt-2 flex items-end justify-between gap-3">
+          <h3
+            className={`line-clamp-2 font-semibold tracking-tight transition-colors duration-300 group-hover:text-orange-300 ${
+              isLarge
+                ? "text-lg leading-6 sm:text-xl sm:leading-7"
+                : "text-sm leading-5 sm:text-base"
+            }`}
+          >
+            {product.name}
+          </h3>
+
+          <span
+            className={`flex shrink-0 items-center justify-center rounded-full border border-white/15 text-white/80 transition duration-300 group-hover:border-orange-500 group-hover:bg-orange-500 group-hover:text-black ${
+              isLarge ? "h-10 w-10" : "h-8 w-8"
+            }`}
+          >
+            <ArrowUpRight size={isLarge ? 17 : 14} />
+          </span>
         </div>
 
-        <div className="mt-2 inline-flex items-center gap-1 text-[12px] font-medium text-amber-700">
-          View details <ArrowRight size={14} />
-        </div>
+        {/* Product specifications */}
+        {isLarge && (
+          <div className="mt-3 flex flex-wrap gap-2 text-[11px] text-white/60">
+            {product.fuelType && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1">
+                <Flame size={12} className="text-orange-400" />
+                {product.fuelType}
+              </span>
+            )}
+
+            {product.size && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-1">
+                <Layers3 size={12} className="text-orange-400" />
+                {product.size}
+              </span>
+            )}
+          </div>
+        )}
       </div>
-
-      {/* 🔗 Full-card clickable overlay */}
-      <Link
-        to={`/products/${product.slug || product.id}`}   // ⬅️ route target
-        className="absolute inset-0 z-20"
-        aria-label={`Open ${product.name} details`}
-      />
-    </motion.div>
+    </motion.article>
   );
 };
 

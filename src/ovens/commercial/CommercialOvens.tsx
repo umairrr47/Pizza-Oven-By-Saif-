@@ -1,14 +1,11 @@
 import React from "react";
 import CommercialOvenHero from "./CommercialOvenHero";
 import AssistanceBanner from "./AssistanceBanner";
-import BenifitSection from "./BenefitSection";
 import CommercialSpecs from "./CommercialSpecs";
 import RevolvingOven from "../../pages/RevolvingOven";
 import CommercialOvenDetails from "./CommercialOvenDetails";
 import ReviewsSection from "./ReviewsSection";
-import CommercialGallery from "./CommercialGallery";
 import CommercialAbout from "./CommercialAbout";
-import AboutLink from "./AboutLink";
 
 
 const CommercialOvens = () => {
@@ -17,14 +14,14 @@ const CommercialOvens = () => {
       {/* Hero Section - Full width */}
       <CommercialOvenHero />
       <AssistanceBanner />
-      <BenifitSection />
+      {/* <BenifitSection /> */}
       <CommercialSpecs />
       <RevolvingOven />
       <CommercialOvenDetails />
       <ReviewsSection />
-      <CommercialGallery />
+      {/* <CommercialGallery /> */}
       <CommercialAbout />
-      <AboutLink />
+      {/* <AboutLink /> */}
     </div>
   );
 };

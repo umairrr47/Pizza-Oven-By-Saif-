@@ -3,11 +3,136 @@ import React, { useEffect, useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import BG from "../assets/video.mp4";
+import USP1 from "../assets/intro-usp-1.webp"
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Simple reusable type for icons
+type IconProps = React.SVGProps<SVGSVGElement>;
+
+export const ExactIconPerformance: React.FC<IconProps> = ({ className }) => (
+  <svg
+    viewBox="0 0 100 100"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Circular arc with gap (rotated to match ref) */}
+    <path d="M85 25 A 40 40 0 1 0 85 75" transform="rotate(-45 50 50)" />
+    {/* Needle */}
+    <line x1="50" y1="50" x2="85" y2="15" />
+    {/* Center dot */}
+    <circle cx="50" cy="50" r="5" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+export const ExactIconEfficiency: React.FC<IconProps> = ({ className }) => (
+  <svg
+    viewBox="0 0 100 100"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Circular cycle with arrows */}
+    <path d="M 50 10 A 40 40 0 0 1 90 50" />
+    <path d="M 90 50 L 85 42 M 90 50 L 95 42" />
+    <path d="M 50 90 A 40 40 0 0 1 10 50" />
+    <path d="M 10 50 L 5 58 M 10 50 L 15 58" />
+    {/* Lightning bolt */}
+    <path d="M 55 25 L 40 50 L 60 50 L 45 75" />
+  </svg>
+);
+
+export const ExactIconBuiltQuality: React.FC<IconProps> = ({ className }) => (
+  <svg
+    viewBox="0 0 100 100"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Rosette / seal */}
+    <path d="M50 10 
+             Q 60 10 65 18 Q 75 20 78 28
+             Q 88 32 88 40 Q 95 50 88 60
+             Q 88 68 78 72 Q 75 80 65 82
+             Q 60 90 50 90 Q 40 90 35 82
+             Q 25 80 22 72 Q 12 68 12 60
+             Q 5 50 12 40 Q 12 32 22 28
+             Q 25 20 35 18 Q 40 10 50 10 Z" />
+    <circle cx="50" cy="50" r="25" />
+    <path d="M 40 50 L 48 58 L 65 40" />
+  </svg>
+);
+
+export const ExactIconCustomFinish: React.FC<IconProps> = ({ className }) => (
+  <svg
+    viewBox="0 0 100 100"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Back bookmark */}
+    <path d="M 40 10 H 80 V 70 L 60 60 L 40 70 V 10" opacity="0.4" />
+    {/* Front bookmark */}
+    <path
+      d="M 20 20 H 60 V 90 L 40 80 L 20 90 V 20"
+      fill="currentColor"
+      stroke="none"
+      opacity="0.05"
+    />
+    <path d="M 20 20 H 60 V 90 L 40 80 L 20 90 V 20" />
+    {/* Checkmark */}
+    <path d="M 32 45 L 38 52 L 50 38" />
+  </svg>
+);
+
+export const ExactIconGuidance: React.FC<IconProps> = ({ className }) => (
+  <svg
+    viewBox="0 0 100 100"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* Pole */}
+    <line x1="50" y1="10" x2="50" y2="90" />
+    <line x1="30" y1="90" x2="70" y2="90" />
+    {/* Left sign */}
+    <path
+      d="M 50 25 L 20 25 L 10 35 L 20 45 L 50 45"
+      fill="currentColor"
+      stroke="none"
+      opacity="0.05"
+    />
+    <path d="M 50 25 L 20 25 L 10 35 L 20 45 L 50 45" />
+    {/* Right sign */}
+    <path
+      d="M 50 55 L 80 55 L 90 65 L 80 75 L 50 75"
+      fill="currentColor"
+      stroke="none"
+      opacity="0.05"
+    />
+    <path d="M 50 55 L 80 55 L 90 65 L 80 75 L 50 75" />
+  </svg>
+);
+
+
 type Stat = { label: string; value: number; suffix?: string };
-type UspItem = { icon: string; t: string; d: string };
+type UspItem = { Icon: React.FC<IconProps>; t: string; d: string };
 
 const stats: Stat[] = [
   { label: "Wood-Fired Installs", value: 500, suffix: "+" },
@@ -15,12 +140,33 @@ const stats: Stat[] = [
 ];
 
 const uspItems: UspItem[] = [
-  { icon: "https://www.ilforno.in/wp-content/uploads/2025/09/intro-usp-1.webp", t: "Performance", d: "Reaches 450°C in 40–60 minutes, retaining heat for hours of authentic, evenly baked pizzas." },
-  { icon: "https://www.ilforno.in/wp-content/uploads/2025/09/intro-usp-2.webp", t: "Efficiency", d: "Dual-fuel ovens with ceramic insulation heat fast, save fuel, and suit both home and commercial use." },
-  { icon: "https://www.ilforno.in/wp-content/uploads/2025/09/intro-usp-3.webp", t: "Built Quality", d: "Made with premium bricks, stainless steel, and ceramics for superior durability, strength, and low maintenance." },
-  { icon: "https://www.ilforno.in/wp-content/uploads/2025/09/intro-usp-4.webp", t: "Custom Finish", d: "Personalize with brick, tile, or stone finishes for a unique, premium, and aesthetic oven design." },
-  { icon: "https://www.ilforno.in/wp-content/uploads/2025/09/intro-usp-5.webp", t: "Guidance", d: "Our experienced team offers full support—from choosing your oven to setup and after-sales assistance." },
+  {
+    Icon: ExactIconPerformance,
+    t: "Performance",
+    d: "Reaches 450°C in 40–60 minutes, retaining heat for hours of authentic, evenly baked pizzas.",
+  },
+  {
+    Icon: ExactIconEfficiency,
+    t: "Efficiency",
+    d: "Dual-fuel ovens with ceramic insulation heat fast, save fuel, and suit both home and commercial use.",
+  },
+  {
+    Icon: ExactIconBuiltQuality,
+    t: "Built Quality",
+    d: "Made with premium bricks, stainless steel, and ceramics for superior durability, strength, and low maintenance.",
+  },
+  {
+    Icon: ExactIconCustomFinish,
+    t: "Custom Finish",
+    d: "Personalize with brick, tile, or stone finishes for a unique, premium, and aesthetic oven design.",
+  },
+  {
+    Icon: ExactIconGuidance,
+    t: "Guidance",
+    d: "Our experienced team offers full support—from choosing your oven to setup and after-sales assistance.",
+  },
 ];
+
 
 const VIDEO_HEADING = "India’s best pizza ovens";
 
@@ -33,18 +179,30 @@ const HeroVideoGSAP: React.FC = () => {
     const ctx = gsap.context(() => {
       console.log("GSAP context initialized");
 
-      // Enhanced headline split with letter-by-letter morphing
-      const headline = root.current!.querySelector(".js-headline") as HTMLElement | null;
+     
+      // Heading animation - keep the text intact
+      const headline = root.current!.querySelector(
+        ".js-headline"
+      ) as HTMLElement | null;
+
       if (headline) {
-        const raw = headline.dataset.text || headline.textContent || "";
-        headline.textContent = raw;
-        const letters = raw.split("");
-        headline.innerHTML = letters
-          .map((l) => `<span class="inline-block overflow-hidden"><span class="inline-block js-letter-inner translate-y-full">${l === " " ? "&nbsp;" : l}</span></span>`)
-          .join("");
-        gsap.set(".js-letter-inner", { yPercent: 100, rotateX: -90, transformOrigin: "50% 100%" });
-        gsap.to(".js-letter-inner", { yPercent: 0, rotateX: 0, ease: "back.out(1.7)", stagger: 0.03, duration: 1, delay: 0.2 });
+        gsap.fromTo(
+          headline,
+          {
+            autoAlpha: 0,
+            y: 20,
+          },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.8,
+            delay: 0.2,
+            ease: "power3.out",
+            clearProps: "visibility",
+          }
+        );
       }
+
 
       // Left column reveal - USP items now start visible, animation enhances
       const tl = gsap.timeline({ defaults: { ease: "power3.out" }, scrollTrigger: { trigger: ".js-left", start: "top bottom", once: true, onEnter: () => console.log("Left column animation triggered") } });
@@ -125,23 +283,12 @@ const HeroVideoGSAP: React.FC = () => {
               {uspItems.map((it) => (
                 <li key={it.t} className="js-usp opacity-1 group relative p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-[#ff6a00]/20 flex-shrink-0">
                   <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 flex-shrink-0">
-                      <img
-                        src={it.icon}
-                        alt={`${it.t} icon`}
-                        className="js-usp-icon w-full h-full object-contain filter drop-shadow-lg transition-transform duration-300 group-hover:scale-110"
-                        loading="lazy"
-                        onError={(e) => {
-                          console.error(`Failed to load USP icon for ${it.t}: ${it.icon}`);
-                          e.currentTarget.style.display = "none";
-                          // Insert fallback icon/text
-                          const fallback = document.createElement("div");
-                          fallback.className = "w-8 h-8 bg-gradient-to-r from-[#ff6a00] to-[#ffd166] rounded-full flex items-center justify-center text-white font-bold text-xs";
-                          fallback.textContent = it.t.charAt(0).toUpperCase(); // First letter as icon
-                          e.currentTarget.parentElement?.appendChild(fallback);
-                        }}
+                    <div className="w-8 h-8 flex-shrink-0 text-[#ff6a00] group-hover:text-[#ffd166] transition-colors">
+                      <it.Icon
+                        className="js-usp-icon w-full h-full transition-transform duration-300 group-hover:scale-110"
                       />
                     </div>
+
                     <div className="flex-1">
                       <div className="font-bold text-white text-lg group-hover:text-[#ffd166] transition-colors">{it.t}</div>
                       <p className="text-white/80 text-sm mt-2 leading-relaxed">{it.d}</p>

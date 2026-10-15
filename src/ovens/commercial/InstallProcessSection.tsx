@@ -1,7 +1,7 @@
 // src/components/InstallProcessSection.tsx
 import React from "react";
 import { motion } from "framer-motion";
-import CurveImg from "../../assets/process-line.webp"; // your image (1682 x 554)
+import CurveImg from "../../assets/Logo.png"; // your image (1682 x 554)
 
 const IMG_W = 1645;
 const IMG_H = 554;

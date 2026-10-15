@@ -1,14 +1,13 @@
 import React from "react";
 import ResidentialOvenHero from "./ResidentialOvenHero";
 import AssistanceBanner from "../commercial/AssistanceBanner";
-import ResidentialBenefit from "./ResidentialBenefit";
 import ResidentialSpecs from "./ResidentialSpecs";
 import RevolvingOven from "../../pages/RevolvingOven";
 import ResidentialOvenDetails from "./ResidentialOvenDetails";
 import ReviewsSection from "../commercial/ReviewsSection";
-import ResidentialGallery from "./ResidentialGallery";
+
 import ResidentialAbout from "./ResidentialAbout";
-import AboutLink from "../commercial/AboutLink";
+
 
 
 const ResidentialOvens = () => {
@@ -17,14 +16,14 @@ const ResidentialOvens = () => {
       {/* Hero Section - Full width */}
       <ResidentialOvenHero />
       <AssistanceBanner />
-      <ResidentialBenefit />
+      {/* <ResidentialBenefit /> */}
       <ResidentialSpecs />
       <RevolvingOven />
       <ResidentialOvenDetails />
       <ReviewsSection />
-      <ResidentialGallery />
+      {/* <ResidentialGallery /> */}
       <ResidentialAbout />
-      <AboutLink />
+      {/* <AboutLink /> */}
     </div>
   );
 };

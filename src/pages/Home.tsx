@@ -12,6 +12,7 @@ import EnquiryFormSection from "./EnquiryFormSection";
 import Products from "./Products";
 import RotatingCookingSection from "../components/RotatingCookingSection";
 import InstagramSection from "../components/InstagramSection";
+import IndiaProjectsSection from "./IndiaProjectsSection";
 
 const HeroVideoGSAP = lazy(() => import("./HeroVideoGSAP"));
 const OvenInfographic = lazy(() => import("./OvenInfographic"));
@@ -62,6 +63,8 @@ export default function Home() {
 
       {/* Installation services */}
       <Installation />
+
+      <IndiaProjectsSection />
 
       {/* Revolving oven showcase */}
       {/* <Suspense fallback={<SectionLoader />}>

@@ -582,7 +582,7 @@ import React, {
 import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 
-import Oven1 from "../assets/residential.png";
+import Oven1 from "../assets/ovens/OvenShow3.png";
 import Oven2 from "../assets/ovens/OvenShow1.png";
 import Oven3 from "../assets/ovens/OvenShow2.png";
 

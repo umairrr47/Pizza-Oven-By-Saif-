@@ -643,33 +643,68 @@ export default function RotatingCookingSection() {
     };
   }, []);
 
-  // Mobile video fix: React doesn't reliably set the muted attribute,
-  // which mobile browsers need in order to autoplay.
+  // Mobile video fix: force muted inline playback and retry on every
+  // signal a mobile browser gives us (ready, visible, first user gesture).
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     video.muted = true;
     video.defaultMuted = true;
+    video.loop = true;
+    video.playsInline = true;
     video.setAttribute("muted", "");
     video.setAttribute("playsinline", "");
     video.setAttribute("webkit-playsinline", "");
 
     const tryPlay = () => {
+      if (!video.paused) return;
+      video.muted = true;
       const p = video.play();
       if (p !== undefined) p.catch(() => {});
     };
 
+    // Retry as the video becomes ready.
+    video.addEventListener("loadedmetadata", tryPlay);
+    video.addEventListener("loadeddata", tryPlay);
+    video.addEventListener("canplay", tryPlay);
+
+    // Play whenever the card is on screen (autoplay can be skipped off-screen).
+    let observer: IntersectionObserver | null = null;
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) tryPlay();
+          });
+        },
+        { threshold: 0.1 }
+      );
+      observer.observe(video);
+    }
+
+    // Fallback for Low Power Mode / strict autoplay: first real user gesture.
+    const events = ["touchend", "pointerup", "click", "scroll"];
+    const onGesture = () => {
+      tryPlay();
+      if (!video.paused) {
+        events.forEach((e) => window.removeEventListener(e, onGesture));
+      }
+    };
+    events.forEach((e) =>
+      window.addEventListener(e, onGesture, { passive: true })
+    );
+
+    video.load();
     tryPlay();
 
-    // Fallback for Low Power Mode / strict autoplay: start on first touch.
-    const onTouch = () => {
-      tryPlay();
-      window.removeEventListener("touchstart", onTouch);
+    return () => {
+      video.removeEventListener("loadedmetadata", tryPlay);
+      video.removeEventListener("loadeddata", tryPlay);
+      video.removeEventListener("canplay", tryPlay);
+      observer?.disconnect();
+      events.forEach((e) => window.removeEventListener(e, onGesture));
     };
-    window.addEventListener("touchstart", onTouch, { passive: true });
-
-    return () => window.removeEventListener("touchstart", onTouch);
   }, []);
 
   return (
@@ -801,17 +836,22 @@ export default function RotatingCookingSection() {
           </div>
 
           {/* Floating video card - added without replacing the 360° machine */}
-          <div className="rc-video-card">
+          <div
+            className="rc-video-card"
+            onClick={() => videoRef.current?.play().catch(() => {})}
+          >
             <video
               ref={videoRef}
               className="rc-video"
+              src={`${ovenVideo}#t=0.001`}
               autoPlay
               muted
               loop
               playsInline
               preload="auto"
+              disablePictureInPicture
+              controls={false}
             >
-              <source src={ovenVideo} type="video/mp4" />
               Your browser does not support video playback.
             </video>
             <div className="rc-video-overlay" />

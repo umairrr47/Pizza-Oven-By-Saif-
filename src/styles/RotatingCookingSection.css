@@ -990,23 +990,19 @@
 }
 
 /* =========================================
-   MOBILE VIDEO FIX - keeps the video card on
-   its own layer above the rotating machine
+   MOBILE VIDEO FIX - card sits above the rotating
+   machine; no transforms on the <video> itself
+   (they can make it render blank on some phones)
 ========================================= */
 
 .rc-video-card {
   z-index: 10;
   isolation: isolate;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-}
-
-.rc-video-card:hover {
-  transform: translateY(-5px) translateZ(0);
+  cursor: pointer;
 }
 
 .rc-video {
+  display: block;
   background: #100d0a;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+  pointer-events: none;
 }

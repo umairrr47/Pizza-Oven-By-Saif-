@@ -859,12 +859,12 @@ export default function RotatingCookingSection() {
               <span className="rc-video-dot" />
               <span>INSIDE THE OVEN</span>
             </div>
-            <div className="rc-video-bottom">
+            {/* <div className="rc-video-bottom">
               <span>BAKING PROCESS</span>
               <span className="rc-video-play" aria-hidden="true">
                 ▶
               </span>
-            </div>
+            </div> */}
           </div>
 
           <div className="rc-visual-bottom">

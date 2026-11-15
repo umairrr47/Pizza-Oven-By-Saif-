@@ -35,7 +35,7 @@
 //     if (!section) return;
 
 //     const ctx = gsap.context(() => {
-      
+
 // const reduceMotion = window.matchMedia(
 //   "(prefers-reduced-motion: reduce)"
 // ).matches;
@@ -409,7 +409,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import "../styles/RotatingCookingSection.css";
 
-import ovenVideo  from "../assets/ovens/360vid.mp4"
+import ovenVideo from "../assets/ovens/360vid.mp4"
 
 
 
@@ -477,97 +477,97 @@ export default function RotatingCookingSection() {
 
 
 
-const reduceMotion = window.matchMedia(
+      const reduceMotion = window.matchMedia(
 
-  "(prefers-reduced-motion: reduce)"
+        "(prefers-reduced-motion: reduce)"
 
-).matches;
-
-
-
-// Start the mechanical rotation independently of scroll animations.
-
-// Use section-scoped selectors so this component targets its own elements.
-
-const turntable = section.querySelector(".rc-turntable");
-
-const outerOrbit = section.querySelector(".rc-orbit-outer");
-
-const coreGlow = section.querySelector(".rc-core-glow");
+      ).matches;
 
 
 
-if (turntable) {
+      // Start the mechanical rotation independently of scroll animations.
 
-  gsap.to(turntable, {
+      // Use section-scoped selectors so this component targets its own elements.
 
-    rotation: "+=360",
+      const turntable = section.querySelector(".rc-turntable");
 
-    duration: 32,
+      const outerOrbit = section.querySelector(".rc-orbit-outer");
 
-    ease: "none",
-
-    repeat: -1,
-
-    transformOrigin: "50% 50%",
-
-    force3D: true,
-
-  });
-
-}
+      const coreGlow = section.querySelector(".rc-core-glow");
 
 
 
-if (outerOrbit) {
+      if (turntable) {
 
-  gsap.to(outerOrbit, {
+        gsap.to(turntable, {
 
-    rotation: "+=360",
+          rotation: "+=360",
 
-    duration: 46,
+          duration: 32,
 
-    ease: "none",
+          ease: "none",
 
-    repeat: -1,
+          repeat: -1,
 
-    transformOrigin: "50% 50%",
+          transformOrigin: "50% 50%",
 
-    force3D: true,
+          force3D: true,
 
-  });
+        });
 
-}
-
-
-
-if (coreGlow) {
-
-  gsap.to(coreGlow, {
-
-    opacity: 0.55,
-
-    scale: 1.12,
-
-    duration: 2.6,
-
-    ease: "sine.inOut",
-
-    yoyo: true,
-
-    repeat: -1,
-
-  });
-
-}
+      }
 
 
 
-// Reduced-motion preference should skip the scroll-driven intro,
+      if (outerOrbit) {
 
-// not prevent the mechanical rotation from starting.
+        gsap.to(outerOrbit, {
 
-if (reduceMotion) return;
+          rotation: "+=360",
+
+          duration: 46,
+
+          ease: "none",
+
+          repeat: -1,
+
+          transformOrigin: "50% 50%",
+
+          force3D: true,
+
+        });
+
+      }
+
+
+
+      if (coreGlow) {
+
+        gsap.to(coreGlow, {
+
+          opacity: 0.55,
+
+          scale: 1.12,
+
+          duration: 2.6,
+
+          ease: "sine.inOut",
+
+          yoyo: true,
+
+          repeat: -1,
+
+        });
+
+      }
+
+
+
+      // Reduced-motion preference should skip the scroll-driven intro,
+
+      // not prevent the mechanical rotation from starting.
+
+      if (reduceMotion) return;
 
 
 
@@ -1019,8 +1019,6 @@ if (reduceMotion) return;
 
                 </span>
 
-
-
                 {feature.number === "01" && (
 
                   <span className="rc-progress-track" aria-hidden="true">
@@ -1165,7 +1163,7 @@ if (reduceMotion) return;
               preload="metadata"
               poster="/images/oven-video-poster.jpg"
             >
-              <source src="/videos/oven-process.mp4" type="video/mp4" />
+              <source src={ovenVideo} type="video/mp4" />
               Your browser does not support video playback.
             </video>
             <div className="rc-video-overlay" />

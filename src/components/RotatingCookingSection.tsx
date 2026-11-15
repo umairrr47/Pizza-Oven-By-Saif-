@@ -405,7 +405,7 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "../styles/RotatingCookingSection.css";
-import ovenVideo from "../assets/ovens/360vid.mp4";
+import ovenVideo from "../assets/ovens/360vid.mov";
 
 gsap.registerPlugin(ScrollTrigger);
 

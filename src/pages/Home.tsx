@@ -13,6 +13,7 @@ import Products from "./Products";
 import RotatingCookingSection from "../components/RotatingCookingSection";
 import InstagramSection from "../components/InstagramSection";
 import IndiaProjectsSection from "./IndiaProjectsSection";
+import EngineeringExperience from "./EngineeringExperience";
 
 const HeroVideoGSAP = lazy(() => import("./HeroVideoGSAP"));
 const OvenInfographic = lazy(() => import("./OvenInfographic"));
@@ -37,15 +38,17 @@ export default function Home() {
       {/* Brand carousel */}
       <BrandCarousal />
 
+      <EngineeringExperience />
+
       {/* Cinematic oven video */}
       <Suspense fallback={<SectionLoader />}>
         <HeroVideoGSAP />
       </Suspense>
 
       {/* Oven infographic */}
-      <Suspense fallback={<SectionLoader />}>
+      {/* <Suspense fallback={<SectionLoader />}>
         <OvenInfographic />
-      </Suspense>
+      </Suspense> */}
 
       {/* Oven categories and showcase */}
       <section aria-label="Oven collection">
